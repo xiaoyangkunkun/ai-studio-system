@@ -1,0 +1,149 @@
+[
+  {
+    "name": "每日晨报",
+    "schedule": "0 8 * * *",
+    "type": "agent",
+    "prompt": "你是用户的每日 AI 晨报机器人,用中文输出。每天早上 8:00 推送。\n\n【板块1:天气】用 terminal 执行:curl -s --max-time 10 \"https://wttr.in/{{CITY}}?format=%c+%t+%w&lang=zh\",输出天气+温度+风速。失败就跳过。\n\n【板块2:昨日 token 用量】用 terminal 读 ~/vault/用量/ 最新月份文件最后一行。\n\n【板块3:今日待办】用 terminal 运行 ~/.hermes/scripts/notion_todos.py(如不存在则跳过)。\n\n【板块4:想法池】用 terminal 读 ~/vault/想法池.md 的待探索部分。\n\n【板块5:昨日团队产出】统计窗口:昨天 08:00→今天 08:00。",
+    "deliver": "{{WEIXIN_CHAT_ID}}"
+  },
+  {
+    "name": "Token用量结算",
+    "schedule": "10 0 * * *",
+    "type": "script",
+    "script": "token_report.py",
+    "deliver": "local"
+  },
+  {
+    "name": "晚间复盘",
+    "schedule": "30 0 * * *",
+    "type": "agent",
+    "prompt": "你是复盘助手。读取今天的对话记录，总结今日工作产出、待办事项、未完成事项。输出条目式。存到 ~/vault/复盘/军师/ 目录。",
+    "deliver": "local"
+  },
+  {
+    "name": "用户习惯整理",
+    "schedule": "0 2 * * *",
+    "type": "script",
+    "script": "habit_extract.sh",
+    "deliver": "local"
+  },
+  {
+    "name": "技能与MCP推荐",
+    "schedule": "0 1 * * *",
+    "type": "agent",
+    "prompt": "你是技能推荐助手。搜索最新的 Hermes 技能和 MCP server，结合用户当前系统能力，推荐3-5个有价值的新技能/MCP。输出格式：名称+用途+安装方式。",
+    "deliver": "local"
+  },
+  {
+    "name": "产出目录Watchdog",
+    "schedule": "30 2 * * *",
+    "type": "script",
+    "script": "watchdog_inbox.py",
+    "deliver": "local"
+  },
+  {
+    "name": "Inbox AI分类",
+    "schedule": "0 3 * * *",
+    "type": "script",
+    "script": "classify_inbox.py",
+    "deliver": "local"
+  },
+  {
+    "name": "知识库健康度扫描",
+    "schedule": "10 3 * * *",
+    "type": "script",
+    "script": "knowledge_health_check.sh",
+    "deliver": "local"
+  },
+  {
+    "name": "知识库整理",
+    "schedule": "30 3 * * *",
+    "type": "agent",
+    "prompt": "你是知识库整理助手。运行 fix_frontmatter.py 和 fix_dead_links.py，修复知识库格式问题和死链。输出修复报告。",
+    "deliver": "local"
+  },
+  {
+    "name": "每周自动备份",
+    "schedule": "0 3 * * 0",
+    "type": "script",
+    "script": "weekly_backup.sh",
+    "deliver": "local"
+  },
+  {
+    "name": "目录每日更新",
+    "schedule": "30 4 * * *",
+    "type": "script",
+    "script": "skills_inventory_wrapper.sh",
+    "deliver": "local"
+  },
+  {
+    "name": "夜间任务检查",
+    "schedule": "30 7 * * *",
+    "type": "script",
+    "script": "night_check.py",
+    "deliver": "local"
+  },
+  {
+    "name": "投稿审核",
+    "schedule": "0 5 * * 0",
+    "type": "agent",
+    "prompt": "你是投稿审核助手。检查 ~/vault/博客/ 目录下是否有新文章待发布，列出待审核内容。",
+    "deliver": "local"
+  },
+  {
+    "name": "流程推荐优化",
+    "schedule": "30 5 * * 0",
+    "type": "script",
+    "script": "flow_signal_extract.sh",
+    "deliver": "local"
+  },
+  {
+    "name": "服务器监控告警",
+    "schedule": "*/30 * * * *",
+    "type": "script",
+    "script": "server_watch.sh",
+    "deliver": "local"
+  },
+  {
+    "name": "技能健康检查",
+    "schedule": "0 5 * * 6",
+    "type": "agent",
+    "prompt": "你是技能健康检查助手。检查所有已安装技能的 SKILL.md 是否存在、格式是否正确。输出检查报告。",
+    "deliver": "local"
+  },
+  {
+    "name": "习惯体检",
+    "schedule": "30 5 * * 6",
+    "type": "script",
+    "script": "habit_check.sh",
+    "deliver": "local"
+  },
+  {
+    "name": "规则体检",
+    "schedule": "0 6 * * 6",
+    "type": "agent",
+    "prompt": "你是规则体检助手。检查用户习惯规则是否有重复、冲突、过时的条目。输出优化建议。",
+    "deliver": "local"
+  },
+  {
+    "name": "SOUL周审",
+    "schedule": "0 6 * * 0",
+    "type": "agent",
+    "prompt": "你是SOUL周审助手。检查所有员工的 SOUL.md 是否有冲突、过时、缺失的规则。输出审查报告。",
+    "deliver": "local"
+  },
+  {
+    "name": "用量截图提醒",
+    "schedule": "30 0 * * 0",
+    "type": "agent",
+    "prompt": "你是用量提醒助手。提醒用户本周的 Token 用量情况，建议截图备份。",
+    "deliver": "{{WEIXIN_CHAT_ID}}"
+  },
+  {
+    "name": "每周复盘",
+    "schedule": "45 0 * * 0",
+    "type": "agent",
+    "prompt": "你是每周复盘助手。汇总本周所有员工的产出、复盘记录，生成周报。输出条目式，存到 ~/vault/复盘/周/ 目录。",
+    "deliver": "local"
+  }
+]

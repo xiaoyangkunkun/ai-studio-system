@@ -1,0 +1,28 @@
+# AI工作室系统 环境变量模板
+# 复制此文件为 .env 并填入你的配置
+
+# === 必填 ===
+YOUR_API_KEY=your-api-key-here
+YOUR_BASE_URL=https://your-api-endpoint/v1
+YOUR_MODEL=your-model-name
+
+# === Dashboard ===
+DASHBOARD_USER=admin
+DASHBOARD_PASSWORD_HASH=  # 用 hermes doctor 生成
+DASHBOARD_SECRET=         # 随机字符串
+
+# === 微信推送（可选，填了才有微信通知）===
+WEIXIN_CHAT_ID=your-weixin-chat-id
+
+# === 城市（天气用）===
+CITY=Fuzhou
+
+# === 同步域名（可选，Syncthing用）===
+SYNC_DOMAIN=your-sync-domain.com
+SERVER_IP=your-server-ip
+
+# === Notion（可选，填了才有Notion集成）===
+# NOTION_TOKEN=ntn_your_token_here
+
+# === TTS（可选）===
+# TTS_PROVIDER=edge

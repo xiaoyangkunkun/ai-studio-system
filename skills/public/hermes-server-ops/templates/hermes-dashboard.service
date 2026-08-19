@@ -1,0 +1,15 @@
+[Unit]
+Description=Hermes Agent Web Dashboard
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Environment=HOME=/root
+ExecStart=/usr/local/lib/hermes-agent/venv/bin/hermes dashboard --host 0.0.0.0 --no-open
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

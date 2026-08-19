@@ -1,0 +1,110 @@
+# === 模型配置（用户必填）===
+model:
+  api_key: "{{YOUR_API_KEY}}"
+  base_url: "{{YOUR_BASE_URL}}"
+  default: "{{YOUR_MODEL}}"
+  provider: custom
+
+# === 数据库 ===
+database:
+  journal_mode: wal
+
+# === 运行时 ===
+runtime:
+  nofile_soft_limit: 4096
+
+# === Agent ===
+agent:
+  max_turns: 150
+  reasoning_effort: medium
+  verbose: false
+
+# === 终端 ===
+terminal:
+  backend: local
+  timeout: 180
+
+# === Web搜索 ===
+web:
+  backend: searxng
+  search_backend: searxng
+  extract_backend: tavily
+
+# === 压缩 ===
+compression:
+  enabled: true
+  threshold: 0.5
+  target_ratio: 0.2
+  protect_last_n: 20
+
+# === 显示 ===
+display:
+  personality: "你用中文回复所有消息，简洁直接，不废话。"
+  streaming: true
+
+# === Dashboard（用户必填）===
+dashboard:
+  basic_auth:
+    username: "{{DASHBOARD_USER}}"
+    password_hash: "{{DASHBOARD_PASSWORD_HASH}}"
+    secret: "{{DASHBOARD_SECRET}}"
+
+# === TTS（可选）===
+# tts:
+#   provider: "{{TTS_PROVIDER}}"
+#   providers:
+#     your-tts:
+#       command: "python3 ~/.hermes/scripts/your_tts.py --text-file {input_path} --out {output_path}"
+#       output_format: mp3
+#       timeout: 120
+#       type: command
+
+# === STT（可选）===
+# stt:
+#   enabled: false
+#   provider: "{{STT_PROVIDER}}"
+
+# === 记忆 ===
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  memory_char_limit: 2200
+  user_char_limit: 1375
+
+# === 委派 ===
+delegation:
+  max_iterations: 50
+  model: "{{YOUR_MODEL}}"
+  provider: custom
+
+# === 技能 ===
+skills:
+  creation_nudge_interval: 15
+
+# === Gateway（可选，按需配置）===
+# gateway:
+#   multiplex_profiles: true
+#   platforms:
+#     your-platform: {}
+
+# === MCP Servers（可选）===
+# mcp_servers:
+#   memory:
+#     args: [~/.hermes/services/memory-mcp/out/mcp-server/server.js]
+#     command: node
+#     env:
+#       AGENT_MEMORY_PROJECT_ID: "{{PROJECT_ID}}"
+#       AGENT_MEMORY_WORKSPACE: "{{VAULT_PATH}}"
+
+# === 平台（可选）===
+# platforms:
+#   your-platform:
+#     enabled: true
+#     extra: {}
+
+# === 会话重置 ===
+session_reset:
+  at_hour: 4
+  idle_minutes: 1440
+  mode: daily
+  notify: false
