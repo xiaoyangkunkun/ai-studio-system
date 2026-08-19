@@ -18,6 +18,16 @@ echo "  AI工作室系统 · 一键部署 v2.0"
 echo "═══════════════════════════════════════════════"
 echo ""
 
+# ===== 预检 =====
+if [ -f "$SCRIPT_DIR/precheck.sh" ]; then
+    echo "🔍 运行环境预检..."
+    bash "$SCRIPT_DIR/precheck.sh"
+    echo ""
+    read -p "  预检完成，继续部署？(y/n): " CONTINUE
+    [ "$CONTINUE" != "y" ] && [ "$CONTINUE" != "Y" ] && echo "已取消" && exit 0
+    echo ""
+fi
+
 # ===== 交互式配置 =====
 echo "📝 配置（直接回车用默认值）"
 echo ""
