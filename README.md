@@ -2,26 +2,25 @@
 
 > AI 驱动的全自动数字员工运营体系。基于 Hermes Agent + Obsidian + Cron，开箱即用。
 
-## 快速开始（15分钟）
+## 快速开始（5分钟）
 
 ```bash
-# 1. 安装 Hermes Agent（如未安装）
-curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
-
-# 2. 克隆产品包
-git clone <repo-url> ai-studio-system
+# 1. 克隆产品包
+git clone https://github.com/xiaoyangkunkun/ai-studio-system.git
 cd ai-studio-system
 
-# 3. 一键安装
-bash install.sh
+# 2. 一键部署（交互式，填API密钥等）
+bash deploy.sh
 
-# 4. 配置（编辑 .env 和 config.yaml）
-vim ~/.hermes/.env
-vim ~/.hermes/config.yaml
-
-# 5. 启动
+# 3. 启动
 hermes
 ```
+
+deploy.sh 会自动：
+- 安装系统依赖和 Hermes Agent
+- 部署 28 个脚本 + 35 个技能 + 2 个员工
+- 创建 11 个定时任务
+- 生成配置文件
 
 ## 包含什么
 
