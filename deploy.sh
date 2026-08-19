@@ -71,6 +71,11 @@ else
     ok "Hermes 已安装"
 fi
 
+# ===== 补充: 如果没有 git，提示用 tar.gz 下载 =====
+if ! command -v git &> /dev/null; then
+    warn "git 不可用，但已通过 apt 安装"
+fi
+
 # ===== Step 3: 创建目录 =====
 step "Step 3/9: 创建目录结构..."
 mkdir -p "$HERMES_HOME"/{scripts,skills,profiles/{researcher,writer}/{memories,skills}}

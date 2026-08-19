@@ -5,15 +5,26 @@
 ## 快速开始（5分钟）
 
 ```bash
-# 1. 克隆产品包
+# 1. 安装 git（如果还没装）
+sudo apt install -y git
+
+# 2. 克隆产品包
 git clone https://github.com/xiaoyangkunkun/ai-studio-system.git
 cd ai-studio-system
 
-# 2. 一键部署（交互式，填API密钥等）
+# 3. 一键部署（交互式，填API密钥等）
 bash deploy.sh
 
-# 3. 启动
+# 4. 启动
 hermes
+```
+
+**没有 git？** 下载压缩包也能用：
+```bash
+# 下载并解压
+curl -sL https://github.com/xiaoyangkunkun/ai-studio-system/archive/refs/heads/main.tar.gz | tar xz
+cd ai-studio-system-main
+bash deploy.sh
 ```
 
 deploy.sh 会自动：
