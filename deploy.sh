@@ -18,6 +18,19 @@ echo "  AI工作室系统 · 一键部署 v2.0"
 echo "═══════════════════════════════════════════════"
 echo ""
 
+# ===== 文件完整性检查 =====
+echo "🔍 检查产品包完整性..."
+MISSING=0
+for dir in scripts skills/profiles vault; do
+    [ -d "$SCRIPT_DIR/$dir" ] || { warn "$dir/ 目录缺失"; MISSING=$((MISSING+1)); }
+done
+[ -f "$SCRIPT_DIR/config-template.yaml" ] || { warn "config-template.yaml 缺失"; MISSING=$((MISSING+1)); }
+[ -f "$SCRIPT_DIR/deploy.sh" ] || { warn "deploy.sh 缺失"; MISSING=$((MISSING+1)); }
+if [ $MISSING -gt 0 ]; then
+    fail "产品包不完整，请确认下载完整后重试"
+fi
+ok "产品包完整"
+
 # ===== 预检 =====
 if [ -f "$SCRIPT_DIR/precheck.sh" ]; then
     echo "🔍 运行环境预检..."
