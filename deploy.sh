@@ -331,7 +331,7 @@ step "阶段4/7: 部署资产"
 # 4.1 目录结构
 echo "  创建目录..."
 mkdir -p "$HERMES_HOME"/{scripts,skills,profiles/{researcher,writer}/{skills,memories}}
-mkdir -p "$VAULT_PATH"/{00-Inbox,wiki/{entities,concepts,comparisons,raw},流程,工作室/{员工,项目报告},工作室产出/{调研员·知远/调研报告,写作员·墨白},复盘/员工/{方案架构师·知远,写作员·墨白,军师},日志/每日,用量,博客,entities}
+mkdir -p "$VAULT_PATH"/{00-Inbox,wiki/{entities,concepts,comparisons,raw},流程,工作室/{员工,项目报告},工作室产出/{方案架构师·知远/调研报告,写作员·墨白},复盘/员工/{方案架构师·知远,写作员·墨白,军师},日志/每日,用量,博客,entities}
 ok "目录结构"
 
 # 4.2 部署脚本
