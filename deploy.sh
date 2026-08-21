@@ -224,8 +224,9 @@ PIP_OPTS=""
 
 # 核心依赖：markdown(md转PDF), python-dotenv(环境变量), httpx(HTTP客户端)
 # prompt_toolkit(交互式CLI), tomli(TOML解析，Python<3.11需要)
-pip3 install $PIP_OPTS markdown python-dotenv httpx prompt_toolkit 2>/dev/null || \
-    pip3 install markdown python-dotenv httpx prompt_toolkit 2>/dev/null || true
+# rich(Hermes CLI依赖), croniter(Cron表达式解析)
+pip3 install $PIP_OPTS markdown python-dotenv httpx prompt_toolkit rich croniter 2>/dev/null || \
+    pip3 install markdown python-dotenv httpx prompt_toolkit rich croniter 2>/dev/null || true
 
 # tomllib 兼容性：Python 3.11+ 内置 tomllib，3.10 需要 tomli
 PYTHON_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
@@ -284,15 +285,38 @@ fi
 HERMES_VENV="/usr/local/lib/hermes-agent/venv"
 if [ -d "$HERMES_VENV" ] && [ -f "$HERMES_VENV/bin/pip" ]; then
     echo "  安装Hermes venv依赖..."
-    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit 2>/dev/null || true
+    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit croniter 2>/dev/null || true
     ok "Hermes venv依赖"
 elif [ -d "$HERMES_VENV" ]; then
     warn "venv目录存在但pip不可用，尝试重建..."
     python3 -m venv "$HERMES_VENV" --clear 2>/dev/null || true
-    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit 2>/dev/null || true
+    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit croniter 2>/dev/null || true
     ok "Hermes venv依赖（重建）"
 else
     warn "venv目录不存在，跳过venv依赖安装"
+fi
+
+# 3.3.2 Python 3.10正则兼容性修复（占有型量词）
+PYTHON_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+if [[ "$PYTHON_VER" < "3.11" ]]; then
+    echo "  修复Python 3.10正则兼容性..."
+    python3 -c "
+import glob
+files = glob.glob('/usr/local/lib/hermes-agent/**/*.py', recursive=True)
+fixed = 0
+for f in files:
+    try:
+        with open(f, 'r') as fh:
+            content = fh.read()
+        new_content = content.replace(']++', ']+').replace(']*+', ']*').replace(']?+', ']?')
+        if new_content != content:
+            with open(f, 'w') as fh:
+                fh.write(new_content)
+            fixed += 1
+    except: pass
+print(f'  修复了 {fixed} 个文件')
+" 2>/dev/null || true
+    ok "正则兼容性修复"
 fi
 
 echo ""
