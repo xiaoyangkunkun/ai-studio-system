@@ -421,6 +421,8 @@ WEIXIN_CHAT_ID=$WEIXIN_ID
 CITY=$CITY
 DASHBOARD_USER=$DASH_USER
 DASHBOARD_SECRET=$DASH_SECRET
+XIAOMI_API_KEY=$API_KEY
+XIAOMI_BASE_URL=$API_URL
 ENVEOF
 ok ".env"
 
@@ -450,6 +452,17 @@ if [ "$NEED_CONFIG" -eq 1 ] && [ -f "$SCRIPT_DIR/config-template.yaml" ]; then
     else
         ok "config.yaml"
     fi
+
+    # 添加delegation配置
+    cat >> "$HERMES_HOME/config.yaml" << DELEGEOF
+
+delegation:
+  max_iterations: 50
+  model: $MODEL
+  provider: custom
+  api_key: $API_KEY
+DELEGEOF
+    ok "delegation配置"
 elif [ "$NEED_CONFIG" -eq 0 ]; then
     warn "config.yaml 已存在且无占位符，跳过"
 else
@@ -566,21 +579,30 @@ echo "════════════════════════�
 echo ""
 echo "📊 统计: 脚本 $SCRIPT_COUNT 个 | 技能 $SKILL_COUNT 个 | Cron ${CRON_COUNT:-0} 个"
 echo ""
+
+# 自动重启Gateway
+echo "  重启 Gateway..."
+pkill -9 -f 'hermes.*run' 2>/dev/null || true
+sleep 2
+nohup hermes gateway run > /tmp/gw.log 2>&1 &
+sleep 3
+if ps aux | grep -q 'hermes.*gateway' | grep -v grep; then
+    ok "Gateway 已重启"
+else
+    warn "Gateway 重启失败，请手动执行: hermes gateway start"
+fi
+
+echo ""
 echo "═══════════════════════════════════════════════"
 echo "  后续步骤"
 echo "═══════════════════════════════════════════════"
 echo ""
-echo "  1. 重启 Gateway 使配置生效："
-echo "     方法A: hermes gateway restart"
-echo "     方法B: pkill -f 'hermes.*gateway' && hermes gateway start"
-echo "     方法C: 重启终端后运行 hermes gateway start"
-echo ""
-echo "  2. 验证部署："
+echo "  1. 验证部署："
 echo "     hermes status          # 检查状态"
 echo "     hermes cron list       # 查看定时任务"
 echo "     hermes dashboard       # 打开Dashboard"
 echo ""
-echo "  3. 如遇问题："
+echo "  2. 如遇问题："
 echo "     hermes doctor          # 诊断常见问题"
 echo "     hermes logs --tail 50  # 查看最近日志"
 echo ""
