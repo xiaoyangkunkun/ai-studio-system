@@ -347,20 +347,26 @@ fi
 echo "  部署技能..."
 SKILL_COUNT=0
 
-# public → default profile
+# public → 全局skills目录 + default profile
 if [ -d "$SCRIPT_DIR/skills/public" ]; then
     for skill_dir in "$SCRIPT_DIR/skills/public"/*/; do
         skill_name=$(basename "$skill_dir")
+        # 部署到全局skills目录
+        cp -r "$skill_dir" "$HERMES_HOME/skills/$skill_name" 2>/dev/null || true
+        # 也部署到default profile
         cp -r "$skill_dir" "$HERMES_HOME/profiles/default/skills/$skill_name" 2>/dev/null || true
         SKILL_COUNT=$((SKILL_COUNT + 1))
     done
 fi
 
-# 角色专属技能
+# 角色专属技能 → 全局skills目录 + 对应profile
 for role in researcher writer; do
     [ -d "$SCRIPT_DIR/skills/$role" ] || continue
     for skill_dir in "$SCRIPT_DIR/skills/$role"/*/; do
         skill_name=$(basename "$skill_dir")
+        # 部署到全局skills目录
+        cp -r "$skill_dir" "$HERMES_HOME/skills/$skill_name" 2>/dev/null || true
+        # 也部署到对应profile
         cp -r "$skill_dir" "$HERMES_HOME/profiles/$role/skills/$skill_name" 2>/dev/null || true
         SKILL_COUNT=$((SKILL_COUNT + 1))
     done
