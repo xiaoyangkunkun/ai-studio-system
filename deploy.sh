@@ -198,6 +198,26 @@ STEOF
     ok "Syncthing 服务已配置"
 fi
 
+# 初始化Syncthing并配置同步目录
+if command -v syncthing &> /dev/null; then
+    echo "  初始化 Syncthing..."
+    # 创建配置目录
+    mkdir -p /root/.config/syncthing
+    # 生成默认配置（如果不存在）
+    if [ ! -f /root/.config/syncthing/config.xml ]; then
+        syncthing generate --config=/root/.config/syncthing 2>/dev/null || true
+    fi
+    # 启动Syncthing服务
+    systemctl start syncthing 2>/dev/null || true
+    sleep 3
+    # 添加vault同步文件夹
+    if [ -d "$VAULT_PATH" ]; then
+        # 使用Syncthing CLI添加文件夹（如果可用）
+        syncthing cli config folders add --path="$VAULT_PATH" --label="Vault" --id="vault" 2>/dev/null || true
+        ok "Syncthing已配置同步: $VAULT_PATH"
+    fi
+fi
+
 # 3.1.3 PDF工具（可选）
 if ! command -v wkhtmltopdf &> /dev/null; then
     echo "  安装 PDF 工具..."
@@ -442,6 +462,7 @@ delegation:
   model: "$MODEL"
   provider: custom
   api_key: "$API_KEY"
+  workdir: "$VAULT_PATH"
 DELEGEOF
         ok "delegation配置"
     fi
