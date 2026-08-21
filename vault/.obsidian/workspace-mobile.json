@@ -1,0 +1,216 @@
+{
+  "main": {
+    "id": "e8e5387c197383c9",
+    "type": "split",
+    "children": [
+      {
+        "id": "ec0288868c64e7d6",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "bd2b5fceeb2db363",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "entities/同步配置.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "同步配置"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "086fae8e709f0e9c",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "95aaf3f4205ca245",
+        "type": "leaf",
+        "state": {
+          "type": "file-explorer",
+          "state": {
+            "sortOrder": "byModifiedTimeReverse",
+            "autoReveal": false,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-folder-closed",
+          "title": "文件列表"
+        }
+      },
+      {
+        "id": "bf6fc803bc9fc403",
+        "type": "leaf",
+        "state": {
+          "type": "search",
+          "state": {
+            "query": "tag:#songwriting",
+            "matchingCase": false,
+            "explainSearch": false,
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical"
+          },
+          "icon": "lucide-search",
+          "title": "搜索"
+        }
+      },
+      {
+        "id": "e2fb8013aba1d37f",
+        "type": "leaf",
+        "state": {
+          "type": "tag",
+          "state": {
+            "sortOrder": "frequency",
+            "useHierarchy": true,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-tags",
+          "title": "标签"
+        }
+      },
+      {
+        "id": "4fde66a471e1794e",
+        "type": "leaf",
+        "state": {
+          "type": "all-properties",
+          "state": {
+            "sortOrder": "frequency",
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-archive",
+          "title": "添加笔记属性"
+        }
+      },
+      {
+        "id": "3ab4bf42b6be124e",
+        "type": "leaf",
+        "state": {
+          "type": "bookmarks",
+          "state": {
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-bookmark",
+          "title": "书签"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "right": {
+    "id": "2a1c11bd7f8bae3f",
+    "type": "mobile-drawer",
+    "children": [
+      {
+        "id": "60a2e5cda2ac6e60",
+        "type": "leaf",
+        "state": {
+          "type": "backlink",
+          "state": {
+            "file": "流程/知识库流程.md",
+            "collapseAll": false,
+            "extraContext": false,
+            "sortOrder": "alphabetical",
+            "showSearch": false,
+            "searchQuery": "",
+            "backlinkCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-coming-in",
+          "title": "反向链接"
+        }
+      },
+      {
+        "id": "ac65ebf9f09ae151",
+        "type": "leaf",
+        "state": {
+          "type": "outgoing-link",
+          "state": {
+            "file": "concepts/同步测试.md",
+            "linksCollapsed": false,
+            "unlinkedCollapsed": true
+          },
+          "icon": "links-going-out",
+          "title": "出链"
+        }
+      },
+      {
+        "id": "4e168aaa617d8059",
+        "type": "leaf",
+        "state": {
+          "type": "outline",
+          "state": {
+            "file": "concepts/同步测试.md",
+            "followCursor": false,
+            "showSearch": false,
+            "searchQuery": ""
+          },
+          "icon": "lucide-list",
+          "title": "大纲"
+        }
+      }
+    ],
+    "currentTab": 0
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:打开快速切换": false,
+      "graph:查看关系图谱": false,
+      "canvas:新建白板": false,
+      "daily-notes:打开/创建今天的日记": false,
+      "templates:插入模板": false,
+      "command-palette:打开命令面板": false,
+      "bases:新建数据库": false
+    }
+  },
+  "active": "bd2b5fceeb2db363",
+  "lastOpenFiles": [
+    "日志/每日/2026-08-14.md",
+    "entities/同步配置.md",
+    "entities/用户画像.md",
+    "技能库/software-development/windows-hermes-ops/references/employee-dispatch-rules.md",
+    "技能库/software-development/scheduled-report-briefing/references/health-check-mechanism.md",
+    "技能库/mlops/llm-usage-tracking/references/deepseek-key-split.md",
+    "技能库/mlops/llm-usage-tracking/references/mimo-vs-deepseek-pricing.md",
+    "技能库/mlops/llm-usage-tracking/references",
+    "技能库/firecrawl-scraper/SKILL.md",
+    "技能库/firecrawl-scraper",
+    "技能库/note-taking/obsidian-diagrams/templates/mermaid-custom.css",
+    "技能库/note-taking/obsidian-diagrams/SKILL.md",
+    "技能库/note-taking/obsidian-diagrams/templates",
+    "技能库/note-taking/obsidian-diagrams",
+    "技能库/autonomous-ai-agents/periodic-health-checks/references/baseline-pattern.md",
+    "技能库/autonomous-ai-agents/periodic-health-checks/SKILL.md",
+    "技能库/autonomous-ai-agents/periodic-health-checks/references",
+    "技能库/autonomous-ai-agents/periodic-health-checks",
+    "技能库/mcp-builder/reference/python_mcp_server.md",
+    "技能库/mcp-builder/reference/mcp_best_practices.md",
+    "技能库/mcp-builder/reference/evaluation.md",
+    "技能库/mcp-builder/reference/node_mcp_server.md",
+    "技能库/mcp-builder/scripts/requirements.txt",
+    "技能库/mcp-builder/scripts/evaluation.py",
+    "技能库/mcp-builder/scripts/connections.py",
+    "技能库/mcp-builder/SKILL.md",
+    "技能库/mcp-builder/SKILL_CN.md",
+    "技能库/software-development/windows-hermes-ops/references/claude-code-remote.md",
+    "entities/域名接入改造清单.md",
+    "entities/归档工作流.md",
+    "日志/每日/2026-08-13.md",
+    "entities/能力目录.md",
+    "用量/2026-08.md",
+    "工作室/员工/调研员·知远.md",
+    "决策通道/待决策.md",
+    "日志/README.md",
+    "公司/组织架构.canvas"
+  ]
+}

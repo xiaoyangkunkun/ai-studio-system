@@ -1,0 +1,76 @@
+/* ===== Mermaid 流程图/架构图样式优化 v2(2026-08-13) ===== */
+/* 字体:思源黑体(Noto Sans CJK SC = Source Han Sans),跨平台 */
+/* 层次:子图标题 Bold → 节点文字 Medium → 连线标签 Regular */
+
+/* 全局字体:解决中文豆腐块/难看 */
+.mermaid svg,
+.mermaid .label,
+.mermaid .nodeLabel,
+.mermaid .edgeLabel {
+  font-family: "Noto Sans CJK SC", "Noto Sans SC", "Source Han Sans SC",
+    "Microsoft YaHei", "PingFang SC", "WenQuanYi Micro Hei", sans-serif !important;
+}
+
+/* 画布背景:纯白 */
+.mermaid svg {
+  background-color: #ffffff !important;
+  border-radius: 12px;
+}
+
+/* 节点:柔和背景 + 圆角 */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node polygon,
+.mermaid .node path,
+.mermaid .basic.label-container {
+  rx: 10px !important;
+  ry: 10px !important;
+  fill: #fdf8ef !important;
+  stroke: #8b0000 !important;
+  stroke-width: 1.4px !important;
+}
+
+/* 判定(菱形)节点区分色 */
+.mermaid .node .label-container {
+  fill: #f0f4ff !important;
+}
+
+/* 节点文字:Medium 14px 深灰(重要步骤可用 **加粗** 强调) */
+.mermaid .label,
+.mermaid .nodeLabel {
+  color: #2b2b2b !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+/* 子图(分组)背景:淡米色虚线框;标题 Bold 醒目 */
+.mermaid .cluster rect {
+  fill: #f7f3ec !important;
+  stroke: #c9b8a0 !important;
+  stroke-width: 1.2px !important;
+  stroke-dasharray: 5 3 !important;
+  rx: 12px !important;
+}
+.mermaid .cluster-label,
+.mermaid .cluster span {
+  color: #5a4a3a !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+/* 连线:柔灰 */
+.mermaid .edgePath .path,
+.mermaid .flowchart-link {
+  stroke: #8a8a8a !important;
+  stroke-width: 1.4px !important;
+}
+
+/* 连线标签:白底灰字小号(辅助信息,轻量) */
+.mermaid .edgeLabel {
+  background-color: #ffffff !important;
+  color: #777 !important;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  border-radius: 6px;
+  padding: 2px 6px;
+}

@@ -1,0 +1,9 @@
+{
+  "id": "studio-hub",
+  "name": "Studio Hub · 工作室知识中枢",
+  "version": "1.2.0",
+  "minAppVersion": "1.8.0",
+  "description": "工作室知识中枢：本地优先的 AI 知识驾驶舱，支持多员工 Agent、AI 分类与项目管理。",
+  "author": "Studio Hub Team",
+  "isDesktopOnly": false
+}
