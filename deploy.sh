@@ -236,6 +236,13 @@ if [ -d "$SCRIPT_DIR/vault" ]; then
     ok "Vault知识库"
 fi
 
+# 4.6 部署主Agent SOUL
+echo "  部署主Agent SOUL..."
+if [ -f "$SCRIPT_DIR/vault/SOUL.md" ]; then
+    cp "$SCRIPT_DIR/vault/SOUL.md" "$HERMES_HOME/SOUL.md"
+    ok "主Agent SOUL"
+fi
+
 echo ""
 
 # ===== 阶段5: 生成配置 =====
