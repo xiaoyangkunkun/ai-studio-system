@@ -279,6 +279,13 @@ else
     command -v hermes &> /dev/null && ok "Hermes安装成功" || fail "Hermes安装失败"
 fi
 
+# 3.3.1 Hermes venv依赖（修复rich等模块缺失）
+if [ -d "/usr/local/lib/hermes-agent/venv" ]; then
+    echo "  安装Hermes venv依赖..."
+    /usr/local/lib/hermes-agent/venv/bin/pip install rich httpx prompt_toolkit 2>/dev/null || true
+    ok "Hermes venv依赖"
+fi
+
 echo ""
 
 # ===== 阶段4: 部署资产 =====
