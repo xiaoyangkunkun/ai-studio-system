@@ -21,7 +21,7 @@ echo ""
 # ===== 文件完整性检查 =====
 echo "🔍 检查产品包完整性..."
 MISSING=0
-for dir in scripts skills/profiles vault; do
+for dir in scripts skills profiles vault; do
     [ -d "$SCRIPT_DIR/$dir" ] || { warn "$dir/ 目录缺失"; MISSING=$((MISSING+1)); }
 done
 [ -f "$SCRIPT_DIR/config-template.yaml" ] || { warn "config-template.yaml 缺失"; MISSING=$((MISSING+1)); }
