@@ -453,6 +453,26 @@ fi
 
 echo ""
 
+# ===== 阶段5.5: 启动Gateway（Cron创建需要Gateway运行）=====
+echo "  启动 Gateway..."
+if systemctl is-active hermes-gateway.service &>/dev/null; then
+    ok "Gateway 已运行（systemctl）"
+elif hermes gateway restart &>/dev/null 2>&1; then
+    ok "Gateway 已启动"
+else
+    pkill -9 -f 'hermes.*run' 2>/dev/null || true
+    sleep 2
+    nohup hermes gateway run > /tmp/gw.log 2>&1 &
+    sleep 3
+    if ps aux | grep -q '[h]ermes.*gateway'; then
+        ok "Gateway 已启动（手动）"
+    else
+        warn "Gateway 启动失败，Cron任务可能无法创建"
+    fi
+fi
+
+echo ""
+
 # ===== 阶段6: 创建Cron =====
 step "阶段6/7: 创建定时任务"
 
@@ -558,24 +578,6 @@ echo "════════════════════════�
 echo ""
 echo "📊 统计: 脚本 $SCRIPT_COUNT 个 | 技能 $SKILL_COUNT 个 | Cron ${CRON_COUNT:-0} 个"
 echo ""
-
-# 自动重启Gateway（修复1：改用systemctl或hermes gateway restart）
-echo "  重启 Gateway..."
-if systemctl is-active hermes-gateway.service &>/dev/null; then
-    systemctl restart hermes-gateway.service 2>/dev/null && ok "Gateway 已重启（systemctl）" || warn "Gateway 重启失败"
-elif hermes gateway restart &>/dev/null; then
-    ok "Gateway 已重启"
-else
-    pkill -9 -f 'hermes.*run' 2>/dev/null || true
-    sleep 2
-    nohup hermes gateway run > /tmp/gw.log 2>&1 &
-    sleep 3
-    if ps aux | grep -q '[h]ermes.*gateway'; then
-        ok "Gateway 已重启（手动）"
-    else
-        warn "Gateway 重启失败，请手动: hermes gateway restart"
-    fi
-fi
 
 echo ""
 echo "═══════════════════════════════════════════════"
