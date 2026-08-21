@@ -1,3 +1,9 @@
+---
+title: "Proactive delivery to messaging platforms (verified on Weixin/WeChat)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Proactive delivery to messaging platforms (verified on Weixin/WeChat)
 
 Goal: Hermes initiates messages instead of only replying. Two mechanisms, both verified end-to-end on the weixin platform.

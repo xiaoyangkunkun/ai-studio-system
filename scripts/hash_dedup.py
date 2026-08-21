@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 
 # === 配置 ===
-VAULT = Path("~/vault")
+VAULT = Path(os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault")))))
 HASH_LOG = VAULT / ".hash_log.jsonl"  # 已摄入文件的哈希记录
 MIN_CONTENT_LENGTH = 50  # 小于此字数视为无效内容
 

@@ -1,3 +1,9 @@
+---
+title: "Hermes MCP 接入 + Notion 内部集成限制(国内环境实战)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Hermes MCP 接入 + Notion 内部集成限制(国内环境实战)
 
 从 2026-08 一次真实接入中沉淀的经验(服务器:国内阿里云, Hermes gateway

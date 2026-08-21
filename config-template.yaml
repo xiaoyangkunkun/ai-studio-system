@@ -49,21 +49,6 @@ dashboard:
     password_hash: "{{DASHBOARD_PASSWORD_HASH}}"
     secret: "{{DASHBOARD_SECRET}}"
 
-# === TTS（可选）===
-# tts:
-#   provider: "{{TTS_PROVIDER}}"
-#   providers:
-#     your-tts:
-#       command: "python3 ~/.hermes/scripts/your_tts.py --text-file {input_path} --out {output_path}"
-#       output_format: mp3
-#       timeout: 120
-#       type: command
-
-# === STT（可选）===
-# stt:
-#   enabled: false
-#   provider: "{{STT_PROVIDER}}"
-
 # === 记忆 ===
 memory:
   memory_enabled: true
@@ -81,11 +66,56 @@ delegation:
 skills:
   creation_nudge_interval: 15
 
-# === Gateway（可选，按需配置）===
-# gateway:
-#   multiplex_profiles: true
-#   platforms:
-#     your-platform: {}
+# === 会话重置 ===
+session_reset:
+  at_hour: 4
+  idle_minutes: 1440
+  mode: daily
+  notify: false
+
+# === 平台配置（按需启用）===
+# 取消注释你需要的平台，并填入对应配置
+
+# --- 微信 iLink ---
+# platforms:
+#   weixin:
+#     enabled: true
+#     extra:
+#       account_id: "{{WEIXIN_ACCOUNT_ID}}"
+#       token: "{{WEIXIN_TOKEN}}"
+#       base_url: "https://ilinkai.weixin.qq.com"
+#       cdn_base_url: "https://novac2c.cdn.weixin.qq.com/c2c"
+#       dm_policy: pairing
+
+# --- QQ Bot ---
+# platforms:
+#   qqbot:
+#     enabled: true
+#     extra:
+#       app_id: "{{QQ_APP_ID}}"
+#       client_secret: "{{QQ_CLIENT_SECRET}}"
+#       dm_policy: pairing
+#       group_policy: pairing
+
+# --- A2A（Agent-to-Agent）---
+# platforms:
+#   a2a:
+#     enabled: true
+#     extra:
+#       port: 9900
+
+# === TTS（可选）===
+# tts:
+#   provider: edge
+#   providers:
+#     edge:
+#       type: edge
+#       voice: zh-CN-XiaoxiaoNeural
+
+# === STT（可选）===
+# stt:
+#   enabled: false
+#   provider: mimo
 
 # === MCP Servers（可选）===
 # mcp_servers:
@@ -95,16 +125,3 @@ skills:
 #     env:
 #       AGENT_MEMORY_PROJECT_ID: "{{PROJECT_ID}}"
 #       AGENT_MEMORY_WORKSPACE: "{{VAULT_PATH}}"
-
-# === 平台（可选）===
-# platforms:
-#   your-platform:
-#     enabled: true
-#     extra: {}
-
-# === 会话重置 ===
-session_reset:
-  at_hour: 4
-  idle_minutes: 1440
-  mode: daily
-  notify: false

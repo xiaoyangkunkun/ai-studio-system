@@ -1,3 +1,9 @@
+---
+title: "Extraction Patterns Reference"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Extraction Patterns Reference
 
 CSS selectors, JavaScript snippets, and domain-specific tips for

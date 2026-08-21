@@ -1,3 +1,9 @@
+---
+title: "Providers & Model Aliases"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Providers & Model Aliases
 
 Set via `hermes model` (picker) or `hermes setup`. 35+ provider profiles ship as

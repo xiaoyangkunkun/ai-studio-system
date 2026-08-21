@@ -1,7 +1,7 @@
 # AI工作室系统 环境变量模板
 # 复制此文件为 .env 并填入你的配置
 
-# === 必填 ===
+# === 必填：模型配置 ===
 YOUR_API_KEY=your-api-key-here
 YOUR_BASE_URL=https://your-api-endpoint/v1
 YOUR_MODEL=your-model-name
@@ -9,20 +9,36 @@ YOUR_MODEL=your-model-name
 # === Dashboard ===
 DASHBOARD_USER=admin
 DASHBOARD_PASSWORD_HASH=  # 用 hermes doctor 生成
-DASHBOARD_SECRET=         # 随机字符串
-
-# === 微信推送（可选，填了才有微信通知）===
-WEIXIN_CHAT_ID=your-weixin-chat-id
+DASHBOARD_SECRET=         # openssl rand -hex 32 生成
 
 # === 城市（天气用）===
 CITY=Fuzhou
 
-# === 同步域名（可选，Syncthing用）===
-SYNC_DOMAIN=your-sync-domain.com
-SERVER_IP=your-server-ip
+# === 微信推送（可选，填了才有微信通知）===
+WEIXIN_CHAT_ID=your-weixin-chat-id
+# WEIXIN_ACCOUNT_ID=622b8e77a11d@im.bot
+# WEIXIN_TOKEN=your-weixin-token
+# WEIXIN_BASE_URL=https://ilinkai.weixin.qq.com
+# WEIXIN_CDN_BASE_URL=https://novac2c.cdn.weixin.qq.com/c2c
+# WEIXIN_DM_POLICY=pairing
+
+# === QQ Bot（可选）===
+# QQ_APP_ID=your-qq-app-id
+# QQ_CLIENT_SECRET=your-qq-client-secret
 
 # === Notion（可选，填了才有Notion集成）===
 # NOTION_TOKEN=ntn_your_token_here
 
+# === DeepSeek（可选，用于余额查询）===
+# DEEPSEEK_API_KEY=your-deepseek-key
+# DEEPSEEK_BASE_URL=https://api.deepseek.com
+
+# === Gemini（可选，用于免费AI调用）===
+# GEMINI_API_KEY=your-gemini-key
+
 # === TTS（可选）===
 # TTS_PROVIDER=edge
+
+# === 同步域名（可选，Syncthing用）===
+# SYNC_DOMAIN=your-sync-domain.com
+# SERVER_IP=your-server-ip

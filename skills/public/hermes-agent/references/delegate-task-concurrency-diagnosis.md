@@ -1,3 +1,9 @@
+---
+title: "delegate_task: diagnosing "my batch was capped""
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # delegate_task: diagnosing "my batch was capped"
 
 When a user reports `delegate_task` ran fewer subagents than they asked for

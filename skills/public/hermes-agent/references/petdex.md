@@ -1,3 +1,9 @@
+---
+title: "Petdex — Animated Pet Mascots"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Petdex — Animated Pet Mascots
 
 Browse, install, and select animated "pet" mascots from the public

@@ -1,3 +1,9 @@
+---
+title: "Slash Commands (In-Session)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Slash Commands (In-Session)
 
 Registry of record: `hermes_cli/commands.py` (`COMMAND_REGISTRY`) — every

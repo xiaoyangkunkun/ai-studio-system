@@ -1,3 +1,14 @@
+---
+title: "Properties (Frontmatter) Reference"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+tags:
+  - nested/tag
+  - tag
+  - tag-with-dashes
+  - tag_with_underscores
+---
 # Properties (Frontmatter) Reference
 
 Properties use YAML frontmatter at the start of a note:

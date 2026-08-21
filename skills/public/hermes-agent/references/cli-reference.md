@@ -1,3 +1,9 @@
+---
+title: "Hermes CLI Reference"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Hermes CLI Reference
 
 Live sources when anything looks stale: `hermes --help`, `hermes <command> --help`,

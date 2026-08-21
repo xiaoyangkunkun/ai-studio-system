@@ -1,3 +1,9 @@
+---
+title: "Nous Portal — authenticating third-party apps against the subscription"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Nous Portal — authenticating third-party apps against the subscription
 
 Recurring user question: "Can app X (Karakeep, OpenWebUI, LibreChat, OpenViking,

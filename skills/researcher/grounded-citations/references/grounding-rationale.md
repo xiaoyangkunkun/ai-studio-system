@@ -1,3 +1,9 @@
+---
+title: "Why numbered ledger ids (grounding research basis)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Why numbered ledger ids (grounding research basis)
 
 Design notes for anyone changing the citation instructions or the ledger

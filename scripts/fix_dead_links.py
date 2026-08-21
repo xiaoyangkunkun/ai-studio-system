@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-VAULT = Path("~/vault")
+VAULT = Path(os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault")))))
 
 def extract_wikilinks(content):
     return set(re.findall(r"\[\[([^\]|#]+?)(?:[|#][^\]]*)?\]\]", content))

@@ -1,3 +1,9 @@
+---
+title: "Output Templates Reference"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Output Templates Reference
 
 Complete formatting templates for all supported output formats.

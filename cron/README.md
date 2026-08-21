@@ -1,3 +1,9 @@
+---
+title: "Cron 任务配置指南"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Cron 任务配置指南
 
 ## 前置条件

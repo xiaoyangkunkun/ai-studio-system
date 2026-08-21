@@ -18,10 +18,10 @@ if [ -d /usr/local/lib/hermes-agent ]; then
     echo "✓ hermes-agent 关键代码(含微信补丁)"
 fi
 
-# 2. ~/.hermes 核心(配置/密钥/记忆/技能/会话/cron/平台/插件/钩子)
-if [ -d ~/.hermes ]; then
+# 2. ${HERMES_HOME:-$HOME/.hermes} 核心(配置/密钥/记忆/技能/会话/cron/平台/插件/钩子)
+if [ -d ${HERMES_HOME:-$HOME/.hermes} ]; then
     tar czf "$DIR/hermes-dotdir.tar.gz" \
-        -C ~/.hermes \
+        -C ${HERMES_HOME:-$HOME/.hermes} \
         --exclude='logs' --exclude='cache' --exclude='audio_cache' \
         --exclude='image_cache' --exclude='*.db-shm' --exclude='*.db-wal' \
         --exclude='hermes-agent' --exclude='venv' --exclude='bin' --exclude='lsp' \
@@ -29,7 +29,7 @@ if [ -d ~/.hermes ]; then
         kanban.db kanban SOUL.md platforms pairing plugins hooks scripts \
         projects.db weixin state gateway_state.json channel_directory.json \
         processes.json profiles 2>/dev/null || true
-    echo "✓ ~/.hermes(含 SOUL/平台配对/插件/钩子/脚本/项目库/员工 profiles)"
+    echo "✓ ${HERMES_HOME:-$HOME/.hermes}(含 SOUL/平台配对/插件/钩子/脚本/项目库/员工 profiles)"
 fi
 
 # 3. systemd 服务定义

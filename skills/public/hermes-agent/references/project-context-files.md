@@ -1,3 +1,9 @@
+---
+title: "Project Context Files"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Project Context Files
 
 Hermes injects project-level instructions into the system prompt by reading context files from the working directory. The discovery order is **first match wins** — only one project context source is loaded per session.

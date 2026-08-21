@@ -1,3 +1,9 @@
+---
+title: "Weixin CDN TLS-fingerprint block — full debugging path & patches"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Weixin CDN TLS-fingerprint block — full debugging path & patches
 
 Verified 2026-08-11 on an Aliyun ECS running Hermes gateway (personal WeChat via iLink).

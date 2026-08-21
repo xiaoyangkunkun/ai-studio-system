@@ -171,9 +171,14 @@ fi
 # ===== Step 8: 创建 Cron 任务 =====
 step "Step 8/9: 创建定时任务..."
 
+# 获取用户配置的模型
+CRON_MODEL="$MODEL"
+CRON_PROVIDER="custom"
+
 if command -v hermes &> /dev/null; then
     # 基础任务（不依赖特定脚本）
     hermes cron create --name "每日晨报" --schedule "0 8 * * *" \
+        --model "$CRON_MODEL" --provider "$CRON_PROVIDER" \
         --prompt "你是每日晨报助手。查看天气、昨日用量、待办事项。用中文输出，条目式。天气用 curl wttr.in/${CITY}?format=3 获取。" \
         2>/dev/null && ok "每日晨报" || warn "每日晨报（可能已存在）"
 
@@ -186,14 +191,17 @@ if command -v hermes &> /dev/null; then
         2>/dev/null && ok "Token用量结算" || warn "Token用量结算"
 
     hermes cron create --name "Inbox AI分类" --schedule "0 3 * * *" \
-        --script "classify_inbox.py" --no-agent \
+        --model "$CRON_MODEL" --provider "$CRON_PROVIDER" \
+        --script "classify_inbox.py" \
         2>/dev/null && ok "Inbox AI分类" || warn "Inbox AI分类"
 
     hermes cron create --name "知识库健康度" --schedule "10 3 * * *" \
-        --script "knowledge_health_check.sh" --no-agent \
+        --model "$CRON_MODEL" --provider "$CRON_PROVIDER" \
+        --script "knowledge_health_check.sh" \
         2>/dev/null && ok "知识库健康度" || warn "知识库健康度"
 
     hermes cron create --name "知识库整理" --schedule "30 3 * * *" \
+        --model "$CRON_MODEL" --provider "$CRON_PROVIDER" \
         --prompt "运行 fix_frontmatter.py 和 fix_dead_links.py 修复知识库问题。" \
         2>/dev/null && ok "知识库整理" || warn "知识库整理"
 
@@ -210,12 +218,20 @@ if command -v hermes &> /dev/null; then
         2>/dev/null && ok "夜间检查" || warn "夜间检查"
 
     hermes cron create --name "习惯体检" --schedule "30 5 * * 6" \
-        --script "habit_check.sh" --no-agent \
+        --model "$CRON_MODEL" --provider "$CRON_PROVIDER" \
+        --script "habit_check.sh" \
         2>/dev/null && ok "习惯体检" || warn "习惯体检"
 
     hermes cron create --name "流程优化" --schedule "30 5 * * 0" \
-        --script "flow_signal_extract.sh" --no-agent \
+        --model "$CRON_MODEL" --provider "$CRON_PROVIDER" \
+        --script "flow_signal_extract.sh" \
         2>/dev/null && ok "流程优化" || warn "流程优化"
+
+    # 产出目录Watchdog
+    hermes cron create --name "产出目录Watchdog" --schedule "*/10 * * * *" \
+        --model "$CRON_MODEL" --provider "$CRON_PROVIDER" \
+        --script "watchdog_inbox.py" \
+        2>/dev/null && ok "产出目录Watchdog" || warn "产出目录Watchdog"
 
     CRON_COUNT=$(hermes cron list 2>/dev/null | grep -c "✅\|⏸\|❌" || echo 0)
     ok "共 $CRON_COUNT 个定时任务"

@@ -1,3 +1,9 @@
+---
+title: "Configuration, Toolsets & Voice"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Configuration, Toolsets & Voice
 
 Edit with `hermes config edit` or `hermes config set section.key value`.

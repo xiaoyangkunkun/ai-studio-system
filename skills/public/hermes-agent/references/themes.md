@@ -1,3 +1,9 @@
+---
+title: "Themes / Skins — Author a Hermes Color Theme"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Themes / Skins — Author a Hermes Color Theme
 
 Author a Hermes **skin** — one YAML file that themes the CLI, the TUI, and the

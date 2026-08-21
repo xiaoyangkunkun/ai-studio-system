@@ -1,3 +1,9 @@
+---
+title: "多平台 Gateway 配置备忘"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # 多平台 Gateway 配置备忘
 
 ## 语言控制:display.personality

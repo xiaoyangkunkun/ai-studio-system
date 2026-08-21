@@ -11,7 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from datetime import datetime
 
-VAULT = Path("~/vault")
+VAULT = Path(os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault")))))
 OUTPUT_DIR = VAULT / "wiki" / "analytics"
 MIN_COMMON_NEIGHBORS = 2
 MAX_RECOMMENDATIONS = 20

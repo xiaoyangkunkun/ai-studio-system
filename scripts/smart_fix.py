@@ -28,7 +28,7 @@ from pathlib import Path
 from datetime import datetime
 from collections import defaultdict
 
-VAULT = Path(os.environ.get("OBSIDIAN_VAULT_PATH", "~/vault"))
+VAULT = Path(os.environ.get("OBSIDIAN_VAULT_PATH", os.environ.get("VAULT_PATH", os.path.expanduser("~/vault"))))
 
 # === Phase 定义 ===
 PHASES = {

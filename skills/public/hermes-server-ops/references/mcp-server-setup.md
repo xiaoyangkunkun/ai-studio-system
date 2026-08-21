@@ -1,3 +1,9 @@
+---
+title: "MCP servers (stdio) on a headless Hermes server"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # MCP servers (stdio) on a headless Hermes server
 
 Verified 2026-08 on Aliyun ECS (Ubuntu 22.04, 3 Mbps link, all Hermes processes as

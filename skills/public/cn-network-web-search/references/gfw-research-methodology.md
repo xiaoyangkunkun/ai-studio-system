@@ -1,3 +1,9 @@
+---
+title: "GFW Research Methodology — Adaptive Patterns"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # GFW Research Methodology — Adaptive Patterns
 
 When web_search on a CN server returns garbage (generic CSDN/GitHub homepage links instead of relevant results), the search backend is working but the results are filtered/unhelpful. This is different from the server being unable to reach search engines.

@@ -1,3 +1,9 @@
+---
+title: "TUI Widgets — Live Panels for the Ink TUI Dock"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # TUI Widgets — Live Panels for the Ink TUI Dock
 
 Author widget apps for the Hermes TUI (`hermes --tui`): glanceable ambient

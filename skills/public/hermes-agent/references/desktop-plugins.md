@@ -1,3 +1,9 @@
+---
+title: "Desktop App Plugins — UI Panes, Commands, Widgets"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Desktop App Plugins — UI Panes, Commands, Widgets
 
 Write plugins for the Hermes desktop app: statusbar items, layout panes,

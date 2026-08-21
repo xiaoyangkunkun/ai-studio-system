@@ -1,3 +1,9 @@
+---
+title: "Syncthing 三端同步(Obsidian 知识库)实操经验"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Syncthing 三端同步(Obsidian 知识库)实操经验
 
 场景:Obsidian vault 在 服务器/安卓手机/Windows 三端通过 Syncthing 双向同步。本文件记录实测踩坑(2026-08 验证)。

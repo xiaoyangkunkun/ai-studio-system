@@ -1,3 +1,9 @@
+---
+title: "Token / Cost Usage Tracking (Hermes 本地用量统计)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Token / Cost Usage Tracking (Hermes 本地用量统计)
 
 > 目标:每日记录 token 用量与费用。2026-08 验证:**不需要任何外部 skill/MCP**,

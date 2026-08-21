@@ -1,3 +1,9 @@
+---
+title: "Weixin (personal WeChat) adapter — iLink Bot API"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Weixin (personal WeChat) adapter — iLink Bot API
 
 Hermes ships a NATIVE personal-WeChat adapter (`gateway/platforms/weixin.py`) backed by Tencent's official iLink Bot API. Long-polling transport — no public endpoint, webhook, or extra port required. Distinct from WeCom (企业微信), which is the enterprise adapter.

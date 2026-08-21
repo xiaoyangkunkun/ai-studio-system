@@ -1,3 +1,9 @@
+---
+title: "Durable & Background Systems"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Durable & Background Systems
 
 Four systems run alongside the main conversation loop. Quick reference

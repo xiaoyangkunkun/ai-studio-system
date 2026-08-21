@@ -9,10 +9,10 @@ import hashlib
 from pathlib import Path
 from datetime import datetime
 
-VAULT = Path("~/vault")
+VAULT = Path(os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault")))))
 INBOX = VAULT / "00-Inbox"
 WATCH_DIRS = [
-    VAULT / "工作室产出" / "调研员·知远" / "调研报告",
+    VAULT / "工作室产出" / "方案架构师·知远" / "调研报告",
     VAULT / "工作室产出" / "写作员·墨白",
 ]
 STATE_FILE = Path("~/.hermes/data/watchdog_state.json")
@@ -87,10 +87,10 @@ def scan_and_process():
                 continue
 
             # 确定作者和类型
-            if "调研员" in file_key:
+            if "知远" in file_key:
                 author = "知远"
                 source_type = "research"
-            elif "写作员" in file_key:
+            elif "墨白" in file_key:
                 author = "墨白"
                 source_type = "writing"
             else:

@@ -1,3 +1,9 @@
+---
+title: "Obsidian Vault 归档流程(2026-08 实测,服务器 ~/vault)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Obsidian Vault 归档流程(2026-08 实测,服务器 ~/vault)
 
 ## Vault 结构(遵循 SCHEMA.md)

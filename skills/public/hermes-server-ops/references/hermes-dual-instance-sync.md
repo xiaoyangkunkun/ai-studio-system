@@ -1,3 +1,9 @@
+---
+title: "双 Hermes 主从同步(服务器 ↔ Windows)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # 双 Hermes 主从同步(服务器 ↔ Windows)
 
 场景:用户在同一局域网/异地有第二个 Hermes 实例(Windows 电脑),希望两端"拥有同样的记忆和技能",且**以服务器为权威**。2026-08-12 实施验证。

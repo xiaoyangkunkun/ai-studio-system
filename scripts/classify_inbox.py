@@ -12,7 +12,7 @@ from pathlib import Path
 from datetime import datetime
 from hash_dedup import ingest_gate, record_ingestion
 
-VAULT = Path("~/vault")
+VAULT = Path(os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault")))))
 INBOX = VAULT / "00-Inbox"
 LOG_FILE = VAULT / "wiki" / "log.md"
 

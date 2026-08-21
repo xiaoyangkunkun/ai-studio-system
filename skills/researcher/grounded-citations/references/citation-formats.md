@@ -1,3 +1,9 @@
+---
+title: "Citation formats per output target"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # Citation formats per output target
 
 The ledger is format-agnostic: `sources.py render --style ...` emits the block,

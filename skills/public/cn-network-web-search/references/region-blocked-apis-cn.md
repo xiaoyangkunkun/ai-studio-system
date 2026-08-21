@@ -1,3 +1,9 @@
+---
+title: "海外 API 地区封锁与 Clash 域名级节点分流(CN 服务器实战)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # 海外 API 地区封锁与 Clash 域名级节点分流(CN 服务器实战)
 
 > 案例:Groq(2026-08-15 实测)。通用模式:海外 API 被 Cloudflare/WAF 按地区封锁时,给 Clash 加域名级规则固定到放行地区节点,其他流量不动。

@@ -1,3 +1,12 @@
+---
+title: "Markdown → PDF on a headless Ubuntu server (verified 2026-08)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+tags:
+  - c9a86a
+  - ccc
+---
 # Markdown → PDF on a headless Ubuntu server (verified 2026-08)
 
 Use when the user asks for a document as PDF and the server has no LaTeX/pandoc.

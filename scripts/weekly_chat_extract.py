@@ -11,7 +11,7 @@ import os
 import re
 import glob
 
-VAULT = '~/vault'
+VAULT = os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault"))))
 DB = os.path.expanduser('~/.hermes/state.db')
 now = datetime.datetime.now()
 

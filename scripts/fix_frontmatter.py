@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-VAULT = Path("~/vault")
+VAULT = Path(os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault")))))
 
 def has_frontmatter(content):
     return content.startswith("---\n") or content.startswith("---\r\n")

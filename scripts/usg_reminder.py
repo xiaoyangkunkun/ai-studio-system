@@ -6,7 +6,7 @@ import datetime
 import re
 import os
 
-VAULT = '~/vault'
+VAULT = os.environ.get("VAULT_PATH", os.path.expanduser(os.environ.get("VAULT_PATH", os.path.expanduser("~/vault"))))
 now = datetime.datetime.now()
 month_file = os.path.join(VAULT, '用量', now.strftime('%Y-%m') + '.md')
 

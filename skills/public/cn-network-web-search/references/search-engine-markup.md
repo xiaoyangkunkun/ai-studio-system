@@ -1,3 +1,9 @@
+---
+title: "搜索桥接 HTML 解析结构(维护参考)"
+created: 2026-08-20
+updated: 2026-08-20
+type: note
+---
 # 搜索桥接 HTML 解析结构(维护参考)
 
 bing_search_bridge.py 的两个引擎解析结构(2026-08 验证)。
