@@ -210,19 +210,17 @@ if command -v syncthing &> /dev/null; then
     # 启动Syncthing服务
     systemctl start syncthing 2>/dev/null || true
     sleep 3
-    # 添加同步文件夹
+    # 添加同步文件夹（vault包含wiki、流程、工作室等所有内容）
     if [ -d "$VAULT_PATH" ]; then
         # 使用Syncthing CLI添加文件夹（如果可用）
         syncthing cli config folders add --path="$VAULT_PATH" --label="Vault" --id="vault" 2>/dev/null || true
         ok "Syncthing已配置同步: $VAULT_PATH"
     fi
-    if [ -d "$VAULT_PATH/wiki" ]; then
-        syncthing cli config folders add --path="$VAULT_PATH/wiki" --label="Wiki" --id="wiki" 2>/dev/null || true
-        ok "Syncthing已配置同步: $VAULT_PATH/wiki"
-    fi
-    if [ -d "$VAULT_PATH/工作室" ]; then
-        syncthing cli config folders add --path="$VAULT_PATH/工作室" --label="StudioHub" --id="studiohub" 2>/dev/null || true
-        ok "Syncthing已配置同步: $VAULT_PATH/工作室"
+    # 同步Obsidian插件配置（包括studio hub）
+    OBSIDIAN_DIR="$HOME/.obsidian"
+    if [ -d "$OBSIDIAN_DIR" ]; then
+        syncthing cli config folders add --path="$OBSIDIAN_DIR" --label="Obsidian-Plugins" --id="obsidian-plugins" 2>/dev/null || true
+        ok "Syncthing已配置同步: $OBSIDIAN_DIR"
     fi
 fi
 
