@@ -42,3 +42,6 @@ WEIXIN_CHAT_ID=your-weixin-chat-id
 # === 同步域名（可选，Syncthing用）===
 # SYNC_DOMAIN=your-sync-domain.com
 # SERVER_IP=your-server-ip
+
+# Tavily（可选，用于网页内容提取）
+# TAVILY_API_KEY=your-tavily-key
