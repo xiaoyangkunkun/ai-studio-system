@@ -3,7 +3,7 @@
 扫描 vault 下所有 .md 笔记(排除 raw/.obsidian/.stfolder),输出中文标题 + 类型 + 更新时间 + 一句话摘要。"""
 import os, re, datetime
 
-VAULT = '/root/vault'
+VAULT = '${VAULT_PATH:-/root/vault}'
 OUT = os.path.join(VAULT, 'entities', '知识库目录.md')
 SKIP_DIRS = {'raw', '.obsidian', '.stfolder', '.stversions', '.git', '.trash', '技能库', '日志', '用量'}
 SKIP_FILES = {'知识库目录.md', '能力目录.md', 'SCHEMA.md'}

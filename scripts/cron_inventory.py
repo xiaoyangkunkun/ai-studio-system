@@ -3,7 +3,7 @@
 import json, os, datetime
 
 JOBS = os.path.expanduser('/root/.hermes/cron/jobs.json')
-OUT = '/root/vault/entities/定时任务清单.md'
+OUT = '${VAULT_PATH:-/root/vault}/entities/定时任务清单.md'
 
 d = json.load(open(JOBS, encoding='utf-8'))
 jobs = d.get('jobs', []) if isinstance(d, dict) else d

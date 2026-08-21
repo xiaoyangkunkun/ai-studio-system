@@ -11,7 +11,7 @@ from collections import defaultdict
 from pathlib import Path
 from datetime import datetime
 
-VAULT = Path("/root/vault")
+VAULT = Path("${VAULT_PATH:-/root/vault}")
 OUTPUT_DIR = VAULT / "wiki" / "analytics"
 
 def extract_wikilinks(content: str) -> set:

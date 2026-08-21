@@ -2,7 +2,7 @@
 """决策通道监视:待决策.md 有新问题(比已决策.md 新)时输出其内容触发 agent;否则静默。"""
 import os
 
-D = '/root/vault/决策通道'
+D = '${VAULT_PATH:-/root/vault}/决策通道'
 ask = os.path.join(D, '待决策.md')
 ans = os.path.join(D, '已决策.md')
 

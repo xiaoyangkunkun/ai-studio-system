@@ -6,7 +6,7 @@
 import os
 from pathlib import Path
 
-VAULT = Path("/root/vault")
+VAULT = Path("${VAULT_PATH:-/root/vault}")
 
 def main():
     print(" ...")

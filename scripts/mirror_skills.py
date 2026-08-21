@@ -3,7 +3,7 @@
 import os, shutil
 
 SRC = '/root/.hermes/skills'
-DST = '/root/vault/技能库'
+DST = '${VAULT_PATH:-/root/vault}/技能库'
 BUNDLED = os.path.join(SRC, '.bundled_manifest')
 
 # 内置技能名集合

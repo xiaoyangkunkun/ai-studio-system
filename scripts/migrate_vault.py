@@ -2,7 +2,7 @@
 """vault 迁移:中文命名 + 主题目录归类 + 删除测试笔记 + 全库链接替换。"""
 import os, re, shutil
 
-VAULT = '/root/vault'
+VAULT = '${VAULT_PATH:-/root/vault}'
 RAW = os.path.join(VAULT, 'raw')
 
 # 1. 删除测试笔记
