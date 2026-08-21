@@ -373,7 +373,16 @@ for role in researcher writer; do
     [ -f "$SCRIPT_DIR/profiles/$role/SOUL.md" ] || continue
     cp "$SCRIPT_DIR/profiles/$role/SOUL.md" "$HERMES_HOME/profiles/$role/"
     [ ! -f "$HERMES_HOME/profiles/$role/memories/MEMORY.md" ] && \
+        mkdir -p "$HERMES_HOME/profiles/$role/memories" && \
         echo "# $role 记忆" > "$HERMES_HOME/profiles/$role/memories/MEMORY.md"
+    # 创建profile的config.yaml（delegation需要）
+    cat > "$HERMES_HOME/profiles/$role/config.yaml" << PROFILEEOF
+model:
+  base_url: $API_URL
+  default: $MODEL
+  provider: custom
+  api_key: $API_KEY
+PROFILEEOF
 done
 ok "2 个员工Profile"
 
