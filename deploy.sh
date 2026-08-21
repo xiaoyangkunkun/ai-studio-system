@@ -19,8 +19,9 @@ step() { echo -e "${CYAN}▶ $1${NC}"; }
 TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_HOME=$(eval echo "~$TARGET_USER")
 
-# 如果root运行但存在hermes用户，自动切换到hermes
-if [ "$TARGET_USER" = "root" ] && id hermes &>/dev/null; then
+# 如果root运行且root有.hermes目录，就部署到root
+# 只有当root没有.hermes且hermes用户存在时，才切换到hermes
+if [ "$TARGET_USER" = "root" ] && [ ! -d "/root/.hermes" ] && id hermes &>/dev/null; then
     TARGET_USER="hermes"
     TARGET_HOME="/home/hermes"
     warn "检测到hermes用户，自动部署到 $TARGET_HOME/.hermes/"
