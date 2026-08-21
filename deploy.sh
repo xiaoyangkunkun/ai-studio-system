@@ -9,6 +9,12 @@ set -e
 # ===== 阶段0: 初始化 =====
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
+ok()   { echo -e "${GREEN}  ✅ $1${NC}"; }
+warn() { echo -e "${YELLOW}  ⚠️  $1${NC}"; }
+fail() { echo -e "${RED}  ❌ $1${NC}"; exit 1; }
+step() { echo -e "${CYAN}▶ $1${NC}"; }
+
 # 检测目标用户（Hermes实际运行的用户）
 TARGET_USER="${SUDO_USER:-$USER}"
 TARGET_HOME=$(eval echo "~$TARGET_USER")
@@ -19,12 +25,6 @@ if [ "$TARGET_USER" = "root" ] && id hermes &>/dev/null; then
     TARGET_HOME="/home/hermes"
     warn "检测到hermes用户，自动部署到 $TARGET_HOME/.hermes/"
 fi
-
-RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
-ok()   { echo -e "${GREEN}  ✅ $1${NC}"; }
-warn() { echo -e "${YELLOW}  ⚠️  $1${NC}"; }
-fail() { echo -e "${RED}  ❌ $1${NC}"; exit 1; }
-step() { echo -e "${CYAN}▶ $1${NC}"; }
 
 # 解析命令行参数
 AUTO_MODE=0
