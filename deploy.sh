@@ -490,7 +490,7 @@ else
     sleep 2
     # 启动Gateway
     nohup hermes gateway run > /tmp/gw.log 2>&1 &
-    sleep 10
+    sleep 15
     # 验证是否真正启动
     if ps aux | grep -q '[h]ermes.*gateway'; then
         ok "Gateway 已启动"

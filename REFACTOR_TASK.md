@@ -1,3 +1,9 @@
+---
+title: "任务：重构AI工作室产品包deploy.sh"
+created: 2026-08-22
+updated: 2026-08-22
+type: note
+---
 # 任务：重构AI工作室产品包deploy.sh
 
 ## 背景
