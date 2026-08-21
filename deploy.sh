@@ -210,7 +210,12 @@ STEOF
     ok "Syncthing 服务已配置"
 fi
 
-# 3.2 Python依赖
+# 3.1.3 PDF工具（可选，用于Markdown转PDF）
+if ! command -v wkhtmltopdf &> /dev/null; then
+    echo "  安装 PDF 工具..."
+    apt-get install -y -qq wkhtmltopdf fonts-noto-cjk 2>/dev/null && \
+        ok "wkhtmltopdf + 中文字体" || warn "PDF工具安装失败（非关键，md_to_pdf.py不可用）"
+fi
 echo "  安装Python包..."
 # 设置代理（如果已配置）
 PIP_OPTS=""
