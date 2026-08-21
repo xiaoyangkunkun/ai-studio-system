@@ -281,10 +281,18 @@ else
 fi
 
 # 3.3.1 Hermes venv依赖（修复rich等模块缺失）
-if [ -d "/usr/local/lib/hermes-agent/venv" ]; then
+HERMES_VENV="/usr/local/lib/hermes-agent/venv"
+if [ -d "$HERMES_VENV" ] && [ -f "$HERMES_VENV/bin/pip" ]; then
     echo "  安装Hermes venv依赖..."
-    /usr/local/lib/hermes-agent/venv/bin/pip install rich httpx prompt_toolkit 2>/dev/null || true
+    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit 2>/dev/null || true
     ok "Hermes venv依赖"
+elif [ -d "$HERMES_VENV" ]; then
+    warn "venv目录存在但pip不可用，尝试重建..."
+    python3 -m venv "$HERMES_VENV" --clear 2>/dev/null || true
+    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit 2>/dev/null || true
+    ok "Hermes venv依赖（重建）"
+else
+    warn "venv目录不存在，跳过venv依赖安装"
 fi
 
 echo ""
