@@ -9,6 +9,17 @@ set -e
 # ===== 阶段0: 初始化 =====
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# 检测目标用户（Hermes实际运行的用户）
+TARGET_USER="${SUDO_USER:-$USER}"
+TARGET_HOME=$(eval echo "~$TARGET_USER")
+
+# 如果root运行但存在hermes用户，自动切换到hermes
+if [ "$TARGET_USER" = "root" ] && id hermes &>/dev/null; then
+    TARGET_USER="hermes"
+    TARGET_HOME="/home/hermes"
+    warn "检测到hermes用户，自动部署到 $TARGET_HOME/.hermes/"
+fi
+
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; CYAN='\033[0;36m'; NC='\033[0m'
 ok()   { echo -e "${GREEN}  ✅ $1${NC}"; }
 warn() { echo -e "${YELLOW}  ⚠️  $1${NC}"; }
@@ -138,8 +149,8 @@ echo ""
 # ===== 阶段3: 安装依赖 =====
 step "阶段3/7: 安装依赖"
 
-HERMES_HOME="$HOME/.hermes"
-VAULT_PATH="$HOME/vault"
+HERMES_HOME="$TARGET_HOME/.hermes"
+VAULT_PATH="$TARGET_HOME/vault"
 
 # 3.1 系统依赖
 echo "  安装系统包..."
