@@ -172,6 +172,44 @@ fi
 command -v node &> /dev/null && ok "Node.js $(node --version 2>&1)" || warn "Node.js 未安装"
 ok "系统依赖"
 
+# 3.1.2 Syncthing（可选，用于多端同步）
+if ! command -v syncthing &> /dev/null; then
+    echo "  安装 Syncthing..."
+    ST_VERSION=$(curl -s https://api.github.com/repos/syncthing/syncthing/releases/latest 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])" 2>/dev/null || echo "")
+    if [ -n "$ST_VERSION" ]; then
+        ST_URL="https://github.com/syncthing/syncthing/releases/download/${ST_VERSION}/syncthing-linux-amd64-${ST_VERSION}.tar.gz"
+        curl -sL "$ST_URL" -o /tmp/syncthing.tar.gz 2>/dev/null && \
+        tar xzf /tmp/syncthing.tar.gz -C /tmp 2>/dev/null && \
+        cp /tmp/syncthing-*/syncthing /usr/local/bin/ 2>/dev/null && \
+        chmod +x /usr/local/bin/syncthing && \
+        rm -rf /tmp/syncthing* && \
+        ok "Syncthing $ST_VERSION" || warn "Syncthing 安装失败（非关键，可手动安装）"
+    else
+        warn "无法获取 Syncthing 版本（非关键，可手动安装）"
+    fi
+fi
+
+# 创建 Syncthing systemd 服务（如果已安装）
+if command -v syncthing &> /dev/null && [ ! -f /etc/systemd/system/syncthing.service ]; then
+    cat > /etc/systemd/system/syncthing.service << 'STEOF'
+[Unit]
+Description=Syncthing
+After=network.target
+
+[Service]
+User=root
+ExecStart=/usr/local/bin/syncthing serve --no-browser --home=/root/.config/syncthing
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+STEOF
+    systemctl daemon-reload
+    systemctl enable syncthing 2>/dev/null || true
+    ok "Syncthing 服务已配置"
+fi
+
 # 3.2 Python依赖
 echo "  安装Python包..."
 # 设置代理（如果已配置）
