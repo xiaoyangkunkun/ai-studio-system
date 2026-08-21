@@ -44,14 +44,32 @@ else
     sudo -n true 2>/dev/null && ok "sudo 免密" || { fail "sudo 需要密码，请用 root 或配置免密 sudo"; ERRORS=$((ERRORS+1)); }
 fi
 
-# 3. 网络
+# 3. 代理配置
+echo ""
+echo "▶ 代理配置"
+if [ -n "$https_proxy" ] || [ -n "$HTTPS_PROXY" ]; then
+    ok "代理已配置: ${https_proxy:-$HTTPS_PROXY}"
+elif curl -s --max-time 5 https://github.com > /dev/null 2>&1; then
+    ok "无需代理即可访问外网"
+else
+    warn "未配置代理且外网不可达"
+    echo "  建议: export https_proxy=http://127.0.0.1:7890"
+    ERRORS=$((ERRORS+1))
+fi
+
+# 4. 网络
 echo ""
 echo "▶ 网络"
-curl -s --max-time 5 https://github.com > /dev/null 2>&1 && ok "GitHub 可达" || { fail "GitHub 不可达，无法安装 Hermes"; ERRORS=$((ERRORS+1)); }
-curl -s --max-time 5 https://api.openai.com > /dev/null 2>&1 && ok "OpenAI API 可达" || warn "OpenAI API 不可达（如用其他提供商可忽略）"
-ping -c 1 -W 2 8.8.8.8 > /dev/null 2>&1 && ok "外网连通" || warn "外网可能受限"
+# 使用代理测试（如果有）
+CURL_OPTS=""
+if [ -n "$https_proxy" ] || [ -n "$HTTPS_PROXY" ]; then
+    CURL_OPTS="-x ${https_proxy:-$HTTPS_PROXY}"
+fi
 
-# 4. 磁盘
+curl -s $CURL_OPTS --max-time 10 https://github.com > /dev/null 2>&1 && ok "GitHub 可达" || { fail "GitHub 不可达"; ERRORS=$((ERRORS+1)); }
+curl -s $CURL_OPTS --max-time 10 https://api.openai.com > /dev/null 2>&1 && ok "OpenAI API 可达" || warn "OpenAI API 不可达（如用其他提供商可忽略）"
+
+# 5. 磁盘
 echo ""
 echo "▶ 磁盘"
 DISK_FREE=$(df -BG / | awk 'NR==2{print $4}' | tr -d 'G')
@@ -65,7 +83,7 @@ else
     ERRORS=$((ERRORS+1))
 fi
 
-# 5. 内存
+# 6. 内存
 echo ""
 echo "▶ 内存"
 MEM_TOTAL=$(free -m | awk '/Mem:/{print $2}')
@@ -79,15 +97,15 @@ else
     ERRORS=$((ERRORS+1))
 fi
 
-# 6. 已有依赖
+# 7. 已有依赖
 echo ""
 echo "▶ 已有依赖"
 command -v python3 &> /dev/null && ok "Python3 $(python3 --version 2>&1 | awk '{print $2}')" || warn "Python3 未安装（deploy.sh 会自动装）"
 command -v node &> /dev/null && ok "Node.js $(node --version 2>&1)" || warn "Node.js 未安装（deploy.sh 会自动装）"
 command -v git &> /dev/null && ok "Git $(git --version 2>&1 | awk '{print $3}')" || warn "Git 未安装（deploy.sh 会自动装）"
-command -v hermes &> /dev/null && ok "Hermes $(hermes --version 2>&1)" || warn "Hermes 未安装（deploy.sh 会自动装）"
+command -v hermes &> /dev/null && ok "Hermes $(hermes --version 2>&1 | head -1)" || warn "Hermes 未安装（deploy.sh 会自动装）"
 
-# 7. 检查是否已有 .hermes
+# 8. 检查是否已有 .hermes
 echo ""
 echo "▶ 已有安装"
 if [ -d "$HOME/.hermes" ]; then
