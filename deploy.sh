@@ -144,12 +144,53 @@ VAULT_PATH="$HOME/vault"
 # 3.1 系统依赖
 echo "  安装系统包..."
 apt-get update -qq 2>/dev/null
-apt-get install -y -qq python3 python3-pip python3-venv nodejs npm git curl wget 2>/dev/null || warn "部分系统包安装失败"
+apt-get install -y -qq python3 python3-pip python3-venv git curl wget 2>/dev/null || warn "部分系统包安装失败"
+
+# 3.1.1 Node.js/npm（可选，失败不阻塞部署）
+if ! command -v node &> /dev/null; then
+    echo "  安装 Node.js..."
+    # 尝试 NodeSource 18.x（Ubuntu 默认 nodejs 版本太旧）
+    if curl -fsSL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh 2>/dev/null; then
+        bash /tmp/nodesource_setup.sh 2>/dev/null && apt-get install -y -qq nodejs 2>/dev/null || true
+    fi
+    # fallback: 系统自带 nodejs
+    if ! command -v node &> /dev/null; then
+        apt-get install -y -qq nodejs npm 2>/dev/null || warn "Node.js 安装失败（非关键，部分脚本可能不可用）"
+    fi
+fi
+command -v node &> /dev/null && ok "Node.js $(node --version 2>&1)" || warn "Node.js 未安装"
 ok "系统依赖"
 
 # 3.2 Python依赖
 echo "  安装Python包..."
-pip3 install markdown python-dotenv 2>/dev/null || true
+# 设置代理（如果已配置）
+PIP_OPTS=""
+[ -n "$PROXY" ] && PIP_OPTS="--proxy $PROXY"
+
+# 核心依赖：markdown(md转PDF), python-dotenv(环境变量), httpx(HTTP客户端)
+# prompt_toolkit(交互式CLI), tomli(TOML解析，Python<3.11需要)
+pip3 install $PIP_OPTS markdown python-dotenv httpx prompt_toolkit 2>/dev/null || \
+    pip3 install markdown python-dotenv httpx prompt_toolkit 2>/dev/null || true
+
+# tomllib 兼容性：Python 3.11+ 内置 tomllib，3.10 需要 tomli
+PYTHON_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+PYTHON_MINOR=$(echo "$PYTHON_VER" | cut -d. -f2)
+if [ "$PYTHON_MINOR" -lt 11 ] 2>/dev/null; then
+    pip3 install $PIP_OPTS tomli 2>/dev/null || pip3 install tomli 2>/dev/null || true
+    # 创建 tomllib 兼容别名（让 import tomllib 在 3.10 上也能用）
+    SITE_DIR=$(python3 -c "import site; print(site.getsitepackages()[0])" 2>/dev/null)
+    if [ -n "$SITE_DIR" ] && [ ! -f "$SITE_DIR/tomllib.py" ] && [ -f "$SITE_DIR/tomli/__init__.py" ]; then
+        cat > "$SITE_DIR/tomllib.py" << 'TOMLEOF'
+"""tomllib compatibility shim for Python < 3.11"""
+from tomli import load as _load
+def load(fp):
+    return _load(fp.read())
+def loads(s):
+    return _load(s)
+TOMLEOF
+        ok "tomllib 兼容层（Python $PYTHON_VER）"
+    fi
+fi
 ok "Python依赖"
 
 # 3.3 Hermes
@@ -349,6 +390,25 @@ command -v hermes &> /dev/null && ok "hermes 命令" || { warn "hermes 命令不
 [ -f "$HERMES_HOME/config.yaml" ] && ok "config.yaml" || { warn "config.yaml 缺失"; ERRORS=$((ERRORS+1)); }
 [ -f "$HERMES_HOME/profiles/researcher/SOUL.md" ] && ok "调研员 SOUL" || { warn "调研员缺失"; ERRORS=$((ERRORS+1)); }
 [ -f "$HERMES_HOME/profiles/writer/SOUL.md" ] && ok "写作员 SOUL" || { warn "写作员缺失"; ERRORS=$((ERRORS+1)); }
+
+# 验证 hermes 命令可用性
+if command -v hermes &> /dev/null; then
+    # 确保 hermes venv 中的依赖已安装
+    HERMES_VENV="$HERMES_HOME/venv"
+    if [ -d "$HERMES_VENV" ]; then
+        "$HERMES_VENV/bin/pip" install -q markdown python-dotenv httpx prompt_toolkit 2>/dev/null || true
+        # tomllib 兼容
+        if [ "$PYTHON_MINOR" -lt 11 ] 2>/dev/null; then
+            "$HERMES_VENV/bin/pip" install -q tomli 2>/dev/null || true
+        fi
+    fi
+    # 测试 hermes status（不阻塞部署）
+    if hermes status &> /dev/null 2>&1; then
+        ok "hermes status 正常"
+    else
+        warn "hermes status 报错（可能 config.yaml 未配置 API 密钥，部署后手动检查）"
+    fi
+fi
 
 echo ""
 echo "═══════════════════════════════════════════════"
