@@ -1,6 +1,6 @@
 #!/bin/bash
 # ══════════════════════════════════════════════════
-#  AI工作室系统 · 一键部署脚本 v4.0
+#  AI工作室系统 · 一键部署脚本 v3.0
 #  用法: bash deploy.sh [--auto] [--env 文件]
 #  前提: Ubuntu 22.04 + root权限
 # ══════════════════════════════════════════════════
@@ -14,6 +14,18 @@ ok()   { echo -e "${GREEN}  ✅ $1${NC}"; }
 warn() { echo -e "${YELLOW}  ⚠️  $1${NC}"; }
 fail() { echo -e "${RED}  ❌ $1${NC}"; exit 1; }
 step() { echo -e "${CYAN}▶ $1${NC}"; }
+
+# 检测目标用户（Hermes实际运行的用户）
+TARGET_USER="${SUDO_USER:-$USER}"
+TARGET_HOME=$(eval echo "~$TARGET_USER")
+
+# 如果root运行且root有.hermes目录，就部署到root
+# 只有当root没有.hermes且hermes用户存在时，才切换到hermes
+if [ "$TARGET_USER" = "root" ] && [ ! -d "/root/.hermes" ] && id hermes &>/dev/null; then
+    TARGET_USER="hermes"
+    TARGET_HOME="/home/hermes"
+    warn "检测到hermes用户，自动部署到 $TARGET_HOME/.hermes/"
+fi
 
 # 解析命令行参数
 AUTO_MODE=0
@@ -58,7 +70,7 @@ detect_proxy() {
 
 echo ""
 echo "═══════════════════════════════════════════════"
-echo "  AI工作室系统 · 一键部署 v4.0"
+echo "  AI工作室系统 · 一键部署 v3.0"
 echo "═══════════════════════════════════════════════"
 echo ""
 
@@ -87,9 +99,9 @@ fi
 
 [ "$EUID" -eq 0 ] || fail "需要root权限运行"
 
-# 1.4 资源检查（修复14：精确到MB）
-DISK_FREE_MB=$(df -m / | awk 'NR==2{print $4}')
-[ "$DISK_FREE_MB" -ge 5120 ] || fail "磁盘空间不足5G（当前${DISK_FREE_MB}MB）"
+# 1.4 资源检查
+DISK_FREE=$(df -BG / | awk 'NR==2{print $4}' | tr -d 'G')
+[ "$DISK_FREE" -ge 5 ] || fail "磁盘空间不足5G"
 
 MEM_TOTAL=$(free -m | awk '/Mem:/{print $2}')
 [ "$MEM_TOTAL" -ge 1000 ] || fail "内存不足1G"
@@ -138,29 +150,30 @@ echo ""
 # ===== 阶段3: 安装依赖 =====
 step "阶段3/7: 安装依赖"
 
-HERMES_HOME="$HOME/.hermes"
-VAULT_PATH="$HOME/vault"
-HERMES_VENV="/usr/local/lib/hermes-agent/venv"
+HERMES_HOME="$TARGET_HOME/.hermes"
+VAULT_PATH="$TARGET_HOME/vault"
 
 # 3.1 系统依赖
 echo "  安装系统包..."
 apt-get update -qq 2>/dev/null
 apt-get install -y -qq python3 python3-pip python3-venv git curl wget 2>/dev/null || warn "部分系统包安装失败"
 
-# 3.1.1 Node.js/npm（可选）
+# 3.1.1 Node.js/npm（可选，失败不阻塞部署）
 if ! command -v node &> /dev/null; then
     echo "  安装 Node.js..."
+    # 尝试 NodeSource 18.x（Ubuntu 默认 nodejs 版本太旧）
     if curl -fsSL https://deb.nodesource.com/setup_18.x -o /tmp/nodesource_setup.sh 2>/dev/null; then
         bash /tmp/nodesource_setup.sh 2>/dev/null && apt-get install -y -qq nodejs 2>/dev/null || true
     fi
+    # fallback: 系统自带 nodejs
     if ! command -v node &> /dev/null; then
-        apt-get install -y -qq nodejs npm 2>/dev/null || warn "Node.js 安装失败（非关键）"
+        apt-get install -y -qq nodejs npm 2>/dev/null || warn "Node.js 安装失败（非关键，部分脚本可能不可用）"
     fi
 fi
 command -v node &> /dev/null && ok "Node.js $(node --version 2>&1)" || warn "Node.js 未安装"
 ok "系统依赖"
 
-# 3.1.2 Syncthing（可选）
+# 3.1.2 Syncthing（可选，用于多端同步）
 if ! command -v syncthing &> /dev/null; then
     echo "  安装 Syncthing..."
     ST_VERSION=$(curl -s https://api.github.com/repos/syncthing/syncthing/releases/latest 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['tag_name'])" 2>/dev/null || echo "")
@@ -171,13 +184,13 @@ if ! command -v syncthing &> /dev/null; then
         cp /tmp/syncthing-*/syncthing /usr/local/bin/ 2>/dev/null && \
         chmod +x /usr/local/bin/syncthing && \
         rm -rf /tmp/syncthing* && \
-        ok "Syncthing $ST_VERSION" || warn "Syncthing 安装失败（非关键）"
+        ok "Syncthing $ST_VERSION" || warn "Syncthing 安装失败（非关键，可手动安装）"
     else
-        warn "无法获取 Syncthing 版本（非关键）"
+        warn "无法获取 Syncthing 版本（非关键，可手动安装）"
     fi
 fi
 
-# 创建 Syncthing systemd 服务
+# 创建 Syncthing systemd 服务（如果已安装）
 if command -v syncthing &> /dev/null && [ ! -f /etc/systemd/system/syncthing.service ]; then
     cat > /etc/systemd/system/syncthing.service << 'STEOF'
 [Unit]
@@ -198,85 +211,94 @@ STEOF
     ok "Syncthing 服务已配置"
 fi
 
-# 3.1.3 PDF工具（可选）
+# 3.1.3 PDF工具（可选，用于Markdown转PDF）
 if ! command -v wkhtmltopdf &> /dev/null; then
     echo "  安装 PDF 工具..."
     apt-get install -y -qq wkhtmltopdf fonts-noto-cjk 2>/dev/null && \
-        ok "wkhtmltopdf + 中文字体" || warn "PDF工具安装失败（非关键）"
+        ok "wkhtmltopdf + 中文字体" || warn "PDF工具安装失败（非关键，md_to_pdf.py不可用）"
 fi
-
-# 3.2 Python依赖（修复11：统一安装到系统Python）
 echo "  安装Python包..."
+# 设置代理（如果已配置）
 PIP_OPTS=""
 [ -n "$PROXY" ] && PIP_OPTS="--proxy $PROXY"
 
+# 核心依赖：markdown(md转PDF), python-dotenv(环境变量), httpx(HTTP客户端)
+# prompt_toolkit(交互式CLI), tomli(TOML解析，Python<3.11需要)
+# rich(Hermes CLI依赖), croniter(Cron表达式解析), openai(LLM API)
 pip3 install $PIP_OPTS markdown python-dotenv httpx prompt_toolkit rich croniter openai 2>/dev/null || \
     pip3 install markdown python-dotenv httpx prompt_toolkit rich croniter openai 2>/dev/null || true
 
-# tomllib 兼容性（修复8：修复bytes/str）
+# tomllib 兼容性：Python 3.11+ 内置 tomllib，3.10 需要 tomli
 PYTHON_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-if [[ "$PYTHON_VER" < "3.11" ]]; then
-    pip3 install tomli 2>/dev/null || true
-    SITE_DIR=$(python3 -c "import site; print(site.getsitepackages()[0])")
-    if [ ! -f "$SITE_DIR/tomllib.py" ]; then
+PYTHON_MINOR=$(echo "$PYTHON_VER" | cut -d. -f2)
+if [ "$PYTHON_MINOR" -lt 11 ] 2>/dev/null; then
+    pip3 install $PIP_OPTS tomli 2>/dev/null || pip3 install tomli 2>/dev/null || true
+    # 创建 tomllib 兼容别名（让 import tomllib 在 3.10 上也能用）
+    SITE_DIR=$(python3 -c "import site; print(site.getsitepackages()[0])" 2>/dev/null)
+    if [ -n "$SITE_DIR" ] && [ ! -f "$SITE_DIR/tomllib.py" ] && [ -f "$SITE_DIR/tomli/__init__.py" ]; then
         cat > "$SITE_DIR/tomllib.py" << 'TOMLEOF'
-from tomli import load
+"""tomllib compatibility shim for Python < 3.11"""
+from tomli import load as _load
+def load(fp):
+    return _load(fp.read())
 def loads(s):
-    if isinstance(s, str):
-        s = s.encode()
-    return load(s)
+    return _load(s)
 TOMLEOF
-        ok "tomllib 兼容层（Python 3.10）"
+        ok "tomllib 兼容层（Python $PYTHON_VER）"
     fi
 fi
 ok "Python依赖"
 
 # 3.3 Hermes
 echo "  安装Hermes..."
-INSTALL_TIMEOUT="${INSTALL_TIMEOUT:-300}"
-
 if command -v hermes &> /dev/null; then
     ok "Hermes已安装: $(hermes --version 2>&1 | head -1)"
 else
     curl -fsSL https://hermes-agent.nousresearch.com/install.sh -o /tmp/install_hermes.sh
+    # 超时保护：默认300秒，可通过 INSTALL_TIMEOUT 自定义
+    # 设 SKIP_HERMES_INSTALL=1 跳过安装（已手动安装时）
+    INSTALL_TIMEOUT="${INSTALL_TIMEOUT:-300}"
     if [ "${SKIP_HERMES_INSTALL:-0}" = "1" ]; then
         warn "SKIP_HERMES_INSTALL=1，跳过Hermes安装"
     else
-        echo "  安装超时限制: ${INSTALL_TIMEOUT}秒"
+        echo "  安装超时限制: ${INSTALL_TIMEOUT}秒（设 INSTALL_TIMEOUT=0 取消限制）"
         if [ "$INSTALL_TIMEOUT" -gt 0 ] 2>/dev/null; then
             timeout "$INSTALL_TIMEOUT" bash /tmp/install_hermes.sh 2>&1 | tail -5 \
-                || warn "Hermes安装超时或失败"
+                || warn "Hermes安装超时或失败（${INSTALL_TIMEOUT}秒），请手动安装后重试"
         else
             bash /tmp/install_hermes.sh 2>&1 | tail -5
         fi
     fi
     source ~/.bashrc 2>/dev/null || true
 
-    HERMES_BIN=$(find /usr/local/bin /usr/local/lib/hermes-agent -name hermes -type f 2>/dev/null | head -1)
+    # 确保hermes命令可用
+    HERMES_BIN=$(find /usr/local/bin /usr/local/lib/hermes-agent /root/.hermes/bin -name hermes -type f 2>/dev/null | head -1)
     if [ -n "$HERMES_BIN" ]; then
         ln -sf "$HERMES_BIN" /usr/local/bin/hermes
         chmod +x "$HERMES_BIN"
     fi
+
     command -v hermes &> /dev/null && ok "Hermes安装成功" || fail "Hermes安装失败"
 fi
 
-# 3.3.1 Hermes venv依赖（修复11：统一路径）
+# 3.3.1 Hermes venv依赖（修复rich等模块缺失）
+HERMES_VENV="/usr/local/lib/hermes-agent/venv"
 if [ -d "$HERMES_VENV" ] && [ -f "$HERMES_VENV/bin/pip" ]; then
     echo "  安装Hermes venv依赖..."
-    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit croniter openai 2>/dev/null || true
+    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit croniter 2>/dev/null || true
     ok "Hermes venv依赖"
 elif [ -d "$HERMES_VENV" ]; then
     warn "venv目录存在但pip不可用，尝试重建..."
     python3 -m venv "$HERMES_VENV" --clear 2>/dev/null || true
-    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit croniter openai 2>/dev/null || true
+    "$HERMES_VENV/bin/pip" install rich httpx prompt_toolkit croniter 2>/dev/null || true
     ok "Hermes venv依赖（重建）"
 else
     warn "venv目录不存在，跳过venv依赖安装"
 fi
 
-# 3.3.2 Python 3.10正则兼容性修复（修复7：检查venv Python）
-HERMES_PYTHON_VER=$("$HERMES_VENV/bin/python3" -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')" 2>/dev/null || echo "3.11")
-if [[ "$HERMES_PYTHON_VER" < "3.11" ]]; then
+# 3.3.2 Python 3.10正则兼容性修复（占有型量词）
+PYTHON_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+if [[ "$PYTHON_VER" < "3.11" ]]; then
     echo "  修复Python 3.10正则兼容性..."
     python3 -c "
 import glob
@@ -304,7 +326,7 @@ step "阶段4/7: 部署资产"
 
 # 4.1 目录结构
 echo "  创建目录..."
-mkdir -p "$HERMES_HOME"/{scripts,skills,profiles/{researcher,writer}/{skills,memories}}
+mkdir -p "$HERMES_HOME"/{scripts,skills,profiles/{default,researcher,writer}/{skills,memories}}
 mkdir -p "$VAULT_PATH"/{00-Inbox,wiki/{entities,concepts,comparisons,raw},流程,工作室/{员工,项目报告},工作室产出/{调研员·知远/调研报告,写作员·墨白},复盘/员工/{方案架构师·知远,写作员·墨白,军师},日志/每日,用量,博客,entities}
 ok "目录结构"
 
@@ -321,25 +343,31 @@ else
     SCRIPT_COUNT=0
 fi
 
-# 4.3 部署技能（修复6：只部署到全局skills目录）
+# 4.3 部署技能（按角色）
 echo "  部署技能..."
 SKILL_COUNT=0
 
-# public → 全局skills目录
+# public → 全局skills目录 + default profile
 if [ -d "$SCRIPT_DIR/skills/public" ]; then
     for skill_dir in "$SCRIPT_DIR/skills/public"/*/; do
         skill_name=$(basename "$skill_dir")
+        # 部署到全局skills目录
         cp -r "$skill_dir" "$HERMES_HOME/skills/$skill_name" 2>/dev/null || true
+        # 也部署到default profile
+        cp -r "$skill_dir" "$HERMES_HOME/profiles/default/skills/$skill_name" 2>/dev/null || true
         SKILL_COUNT=$((SKILL_COUNT + 1))
     done
 fi
 
-# 角色专属技能 → 全局skills目录
+# 角色专属技能 → 全局skills目录 + 对应profile
 for role in researcher writer; do
     [ -d "$SCRIPT_DIR/skills/$role" ] || continue
     for skill_dir in "$SCRIPT_DIR/skills/$role"/*/; do
         skill_name=$(basename "$skill_dir")
+        # 部署到全局skills目录
         cp -r "$skill_dir" "$HERMES_HOME/skills/$skill_name" 2>/dev/null || true
+        # 也部署到对应profile
+        cp -r "$skill_dir" "$HERMES_HOME/profiles/$role/skills/$skill_name" 2>/dev/null || true
         SKILL_COUNT=$((SKILL_COUNT + 1))
     done
 done
@@ -350,16 +378,16 @@ echo "  部署Profile..."
 for role in researcher writer; do
     [ -f "$SCRIPT_DIR/profiles/$role/SOUL.md" ] || continue
     cp "$SCRIPT_DIR/profiles/$role/SOUL.md" "$HERMES_HOME/profiles/$role/"
-    mkdir -p "$HERMES_HOME/profiles/$role/memories"
     [ ! -f "$HERMES_HOME/profiles/$role/memories/MEMORY.md" ] && \
+        mkdir -p "$HERMES_HOME/profiles/$role/memories" && \
         echo "# $role 记忆" > "$HERMES_HOME/profiles/$role/memories/MEMORY.md"
     # 创建profile的config.yaml（delegation需要）
     cat > "$HERMES_HOME/profiles/$role/config.yaml" << PROFILEEOF
 model:
-  base_url: "$API_URL"
-  default: "$MODEL"
+  base_url: $API_URL
+  default: $MODEL
   provider: custom
-  api_key: "$API_KEY"
+  api_key: $API_KEY
 PROFILEEOF
 done
 ok "2 个员工Profile"
@@ -383,30 +411,22 @@ echo ""
 # ===== 阶段5: 生成配置 =====
 step "阶段5/7: 生成配置"
 
-# 5.1 .env（修复3：加引号，修复10：改为追加模式）
-if [ -f "$HERMES_HOME/.env" ]; then
-    # 备份现有.env
-    cp "$HERMES_HOME/.env" "$HERMES_HOME/.env.bak.$(date +%Y%m%d%H%M%S)"
-    # 删除已存在的变量
-    for var in YOUR_API_KEY YOUR_BASE_URL YOUR_MODEL WEIXIN_CHAT_ID CITY DASHBOARD_USER DASHBOARD_SECRET; do
-        sed -i "/^${var}=/d" "$HERMES_HOME/.env"
-    done
-fi
-
-# 追加新变量（修复3：加双引号）
-cat >> "$HERMES_HOME/.env" << ENVEOF
-# AI工作室系统 环境变量（deploy.sh自动生成）
-YOUR_API_KEY="$API_KEY"
-YOUR_BASE_URL="$API_URL"
-YOUR_MODEL="$MODEL"
-WEIXIN_CHAT_ID="$WEIXIN_ID"
-CITY="$CITY"
-DASHBOARD_USER="$DASH_USER"
-DASHBOARD_SECRET="$DASH_SECRET"
+# 5.1 .env
+cat > "$HERMES_HOME/.env" << ENVEOF
+# AI工作室系统 环境变量
+YOUR_API_KEY=$API_KEY
+YOUR_BASE_URL=$API_URL
+YOUR_MODEL=$MODEL
+WEIXIN_CHAT_ID=$WEIXIN_ID
+CITY=$CITY
+DASHBOARD_USER=$DASH_USER
+DASHBOARD_SECRET=$DASH_SECRET
+XIAOMI_API_KEY=$API_KEY
+XIAOMI_BASE_URL=$API_URL
 ENVEOF
 ok ".env"
 
-# 5.2 config.yaml（修复2：不产生重复delegation段）
+# 5.2 config.yaml（不存在或含未替换占位符时重新生成）
 NEED_CONFIG=0
 if [ ! -f "$HERMES_HOME/config.yaml" ]; then
     NEED_CONFIG=1
@@ -426,25 +446,23 @@ if [ "$NEED_CONFIG" -eq 1 ] && [ -f "$SCRIPT_DIR/config-template.yaml" ]; then
     sed -i "s|{{DASHBOARD_PASSWORD_HASH}}|$DASH_PASS_HASH|g" "$HERMES_HOME/config.yaml"
     sed -i "s|{{DASHBOARD_SECRET}}|$DASH_SECRET|g" "$HERMES_HOME/config.yaml"
 
-    # 验证占位符
+    # 验证：确保没有残留的 {{ 占位符
     if grep -q '{{YOUR_\|{{DASHBOARD_' "$HERMES_HOME/config.yaml" 2>/dev/null; then
         warn "config.yaml 仍有未替换的占位符，请手动检查"
     else
         ok "config.yaml"
     fi
 
-    # 添加delegation配置（修复2：检查是否已存在）
-    if ! grep -q 'delegation:' "$HERMES_HOME/config.yaml" 2>/dev/null; then
-        cat >> "$HERMES_HOME/config.yaml" << DELEGEOF
+    # 添加delegation配置
+    cat >> "$HERMES_HOME/config.yaml" << DELEGEOF
 
 delegation:
   max_iterations: 50
-  model: "$MODEL"
+  model: $MODEL
   provider: custom
-  api_key: "$API_KEY"
+  api_key: $API_KEY
 DELEGEOF
-        ok "delegation配置"
-    fi
+    ok "delegation配置"
 elif [ "$NEED_CONFIG" -eq 0 ]; then
     warn "config.yaml 已存在且无占位符，跳过"
 else
@@ -459,29 +477,20 @@ step "阶段6/7: 创建定时任务"
 CRON_MODEL="$MODEL"
 CRON_PROVIDER="custom"
 
-# 修复4：添加幂等性检查
-create_cron() {
-    local name="$1"; shift
-    # 检查同名任务是否已存在
-    if hermes cron list 2>/dev/null | grep -q "Name:.*$name"; then
-        warn "$name（已存在，跳过）"
-        return 0
-    fi
-    hermes cron create --name "$name" --model "$CRON_MODEL" --provider "$CRON_PROVIDER" "$@" 2>/dev/null \
-        && ok "$name" || warn "$name 创建失败"
-}
-
 if command -v hermes &> /dev/null; then
-    # 修复5：添加--deliver参数
-    DELIVER_OPT=""
-    [ -n "$WEIXIN_ID" ] && DELIVER_OPT="--deliver weixin:$WEIXIN_ID"
+    create_cron() {
+        local name="$1"; shift
+        hermes cron create --name "$name" --model "$CRON_MODEL" --provider "$CRON_PROVIDER" "$@" 2>/dev/null \
+            && ok "$name" || warn "$name（可能已存在）"
+    }
+
+    # 注意: schedule 和 prompt 是位置参数，不是 --schedule/--prompt 选项
+    # 格式: hermes cron create [options] schedule [prompt]
 
     create_cron "每日晨报" "0 8 * * *" \
-        $DELIVER_OPT \
         "你是每日晨报助手。查看天气、昨日用量、待办事项。用中文输出，条目式。天气用 curl wttr.in/${CITY}?format=3 获取。"
 
     create_cron "服务器监控" "*/30 * * * *" \
-        $DELIVER_OPT \
         --script "server_watch.sh" --no-agent
 
     create_cron "Token用量结算" "10 0 * * *" \
@@ -513,11 +522,11 @@ if command -v hermes &> /dev/null; then
 
     create_cron "流程优化" "30 5 * * 0" \
         --script "flow_signal_extract.sh" \
-        "运行流程优化脚本，提取流程改进信号。"
+        "运行流程信号提取脚本，分析工作流程中的瓶颈和优化机会。"
 
     create_cron "产出Watchdog" "*/10 * * * *" \
         --script "watchdog_inbox.py" \
-        "运行 watchdog_inbox.py 监听产出目录。"
+        "监控工作室产出目录，检查是否有新产出需要处理。"
 
     CRON_COUNT=$(hermes cron list 2>/dev/null | grep -c "✅\|⏸\|❌" || echo 0)
     ok "共 $CRON_COUNT 个定时任务"
@@ -534,17 +543,29 @@ ERRORS=0
 command -v hermes &> /dev/null && ok "hermes 命令" || { warn "hermes 命令不可用"; ERRORS=$((ERRORS+1)); }
 [ -d "$VAULT_PATH" ] && ok "Vault 目录" || { warn "Vault 目录缺失"; ERRORS=$((ERRORS+1)); }
 [ -d "$HERMES_HOME/scripts" ] && ok "Scripts 目录" || { warn "Scripts 缺失"; ERRORS=$((ERRORS+1)); }
-[ -d "$HERMES_HOME/skills" ] && ok "Skills 目录" || { warn "Skills 缺失"; ERRORS=$((ERRORS+1)); }
+[ -d "$HERMES_HOME/profiles/default/skills" ] && ok "Skills 目录" || { warn "Skills 缺失"; ERRORS=$((ERRORS+1)); }
 [ -f "$HERMES_HOME/.env" ] && ok ".env 配置" || { warn ".env 缺失"; ERRORS=$((ERRORS+1)); }
 [ -f "$HERMES_HOME/config.yaml" ] && ok "config.yaml" || { warn "config.yaml 缺失"; ERRORS=$((ERRORS+1)); }
 [ -f "$HERMES_HOME/profiles/researcher/SOUL.md" ] && ok "调研员 SOUL" || { warn "调研员缺失"; ERRORS=$((ERRORS+1)); }
 [ -f "$HERMES_HOME/profiles/writer/SOUL.md" ] && ok "写作员 SOUL" || { warn "写作员缺失"; ERRORS=$((ERRORS+1)); }
 
-# 验证hermes status
-if hermes status &> /dev/null 2>&1; then
-    ok "hermes status 正常"
-else
-    warn "hermes status 报错（可能 config.yaml 未配置 API 密钥）"
+# 验证 hermes 命令可用性
+if command -v hermes &> /dev/null; then
+    # 确保 hermes venv 中的依赖已安装
+    HERMES_VENV="$HERMES_HOME/venv"
+    if [ -d "$HERMES_VENV" ]; then
+        "$HERMES_VENV/bin/pip" install -q markdown python-dotenv httpx prompt_toolkit 2>/dev/null || true
+        # tomllib 兼容
+        if [ "$PYTHON_MINOR" -lt 11 ] 2>/dev/null; then
+            "$HERMES_VENV/bin/pip" install -q tomli 2>/dev/null || true
+        fi
+    fi
+    # 测试 hermes status（不阻塞部署）
+    if hermes status &> /dev/null 2>&1; then
+        ok "hermes status 正常"
+    else
+        warn "hermes status 报错（可能 config.yaml 未配置 API 密钥，部署后手动检查）"
+    fi
 fi
 
 echo ""
@@ -559,22 +580,16 @@ echo ""
 echo "📊 统计: 脚本 $SCRIPT_COUNT 个 | 技能 $SKILL_COUNT 个 | Cron ${CRON_COUNT:-0} 个"
 echo ""
 
-# 自动重启Gateway（修复1：改用systemctl或hermes gateway restart）
+# 自动重启Gateway
 echo "  重启 Gateway..."
-if systemctl is-active hermes-gateway.service &>/dev/null; then
-    systemctl restart hermes-gateway.service 2>/dev/null && ok "Gateway 已重启（systemctl）" || warn "Gateway 重启失败"
-elif hermes gateway restart &>/dev/null; then
+pkill -9 -f 'hermes.*run' 2>/dev/null || true
+sleep 2
+nohup hermes gateway run > /tmp/gw.log 2>&1 &
+sleep 3
+if ps aux | grep -q 'hermes.*gateway' | grep -v grep; then
     ok "Gateway 已重启"
 else
-    pkill -9 -f 'hermes.*run' 2>/dev/null || true
-    sleep 2
-    nohup hermes gateway run > /tmp/gw.log 2>&1 &
-    sleep 3
-    if ps aux | grep -q '[h]ermes.*gateway'; then
-        ok "Gateway 已重启（手动）"
-    else
-        warn "Gateway 重启失败，请手动: hermes gateway restart"
-    fi
+    warn "Gateway 重启失败，请手动执行: hermes gateway start"
 fi
 
 echo ""
