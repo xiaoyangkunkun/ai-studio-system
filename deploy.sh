@@ -224,9 +224,9 @@ PIP_OPTS=""
 
 # 核心依赖：markdown(md转PDF), python-dotenv(环境变量), httpx(HTTP客户端)
 # prompt_toolkit(交互式CLI), tomli(TOML解析，Python<3.11需要)
-# rich(Hermes CLI依赖), croniter(Cron表达式解析)
-pip3 install $PIP_OPTS markdown python-dotenv httpx prompt_toolkit rich croniter 2>/dev/null || \
-    pip3 install markdown python-dotenv httpx prompt_toolkit rich croniter 2>/dev/null || true
+# rich(Hermes CLI依赖), croniter(Cron表达式解析), openai(LLM API)
+pip3 install $PIP_OPTS markdown python-dotenv httpx prompt_toolkit rich croniter openai 2>/dev/null || \
+    pip3 install markdown python-dotenv httpx prompt_toolkit rich croniter openai 2>/dev/null || true
 
 # tomllib 兼容性：Python 3.11+ 内置 tomllib，3.10 需要 tomli
 PYTHON_VER=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
