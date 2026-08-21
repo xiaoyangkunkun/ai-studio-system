@@ -8,7 +8,7 @@
 """
 import sys, json, re
 
-JOBS = '/root/.hermes/cron/jobs.json'
+JOBS = '${HOME}/.hermes/cron/jobs.json'
 
 def parse_cron(expr):
     """解析标准 5 段 cron,返回 (分钟, 小时, 日, 月, 周) 或 None"""

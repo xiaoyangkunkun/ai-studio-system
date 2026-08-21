@@ -2,8 +2,8 @@
 """生成技能矿全量清单:扫描候选仓库所有 SKILL.md,输出 名称|来源|描述 清单。"""
 import os, re
 
-ROOTS = ['/root/skills-candidates/awesome-skills-cn', '/root/skills-candidates/skills']
-OUT = '/root/skills-candidates/技能矿全量清单.md'
+ROOTS = ['${HOME}/skills-candidates/awesome-skills-cn', '${HOME}/skills-candidates/skills']
+OUT = '${HOME}/skills-candidates/技能矿全量清单.md'
 
 rows = []
 for root in ROOTS:
@@ -23,7 +23,7 @@ for root in ROOTS:
             # 来源目录(相对 awesome-skills-cn 或 skills 的顶层分类)
             rel = os.path.relpath(dirpath, root)
             top = rel.split(os.sep)[0]
-            rows.append((skill_name, top, desc_text[:100], os.path.relpath(dirpath, '/root/skills-candidates')))
+            rows.append((skill_name, top, desc_text[:100], os.path.relpath(dirpath, '${HOME}/skills-candidates')))
 
 rows.sort(key=lambda r: (r[1], r[0]))
 with open(OUT, 'w', encoding='utf-8') as f:

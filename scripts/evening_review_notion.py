@@ -3,7 +3,7 @@
 import json, sys, urllib.request, urllib.error
 
 def load_token():
-    with open('/root/.hermes/.env') as f:
+    with open('${HOME}/.hermes/.env') as f:
         for line in f:
             line = line.strip()
             if line.startswith('NOTION_API_KEY='):

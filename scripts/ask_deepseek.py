@@ -16,7 +16,7 @@
 import sys, subprocess, pathlib, os, time
 
 def scp(src, dst):
-    subprocess.run(['scp', '-P', '2222', '-i', '/root/.ssh/id_ed25519_frp', '-o', 'StrictHostKeyChecking=no', src, f'13199@127.0.0.1:{dst}'], capture_output=True, timeout=30)
+    subprocess.run(['scp', '-P', '2222', '-i', '${HOME}/.ssh/id_ed25519_frp', '-o', 'StrictHostKeyChecking=no', src, f'13199@127.0.0.1:{dst}'], capture_output=True, timeout=30)
 
 def ds_available():
     """探测 DeepSeek 通道可用性(Windows 在线 + daemon 活着),约 15 秒;60 秒内结果缓存(连续调用省探测)"""
@@ -27,7 +27,7 @@ def ds_available():
     except Exception:
         pass
     try:
-        r = subprocess.run(['bash', '-c', 'ssh -p 2222 -i /root/.ssh/id_ed25519_frp -o StrictHostKeyChecking=no -o ConnectTimeout=10 13199@127.0.0.1 \"powershell -Command \\\"& C:\\Users\\13199\\.kimi-webbridge\\bin\\kimi-webbridge.exe status\\\"\"'], capture_output=True, timeout=20)
+        r = subprocess.run(['bash', '-c', 'ssh -p 2222 -i ${HOME}/.ssh/id_ed25519_frp -o StrictHostKeyChecking=no -o ConnectTimeout=10 13199@127.0.0.1 \"powershell -Command \\\"& C:\\Users\\13199\\.kimi-webbridge\\bin\\kimi-webbridge.exe status\\\"\"'], capture_output=True, timeout=20)
         out = r.stdout.decode('utf-8', errors='replace')
         ok = '"running":true' in out and '"extension_connected":true' in out
     except Exception:
@@ -55,7 +55,7 @@ def main():
 
     if '--async' in opts:
         # ---- 异步派单(事件驱动):SSH 触发一次性计划任务,进程不随 SSH 死,立即返回 ----
-        cmd = 'ssh -p 2222 -i /root/.ssh/id_ed25519_frp -o StrictHostKeyChecking=no -o ConnectTimeout=15 13199@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\\\\\\\\Users\\\\\\\\13199\\\\\\\\trigger_ds_async.ps1"'
+        cmd = 'ssh -p 2222 -i ${HOME}/.ssh/id_ed25519_frp -o StrictHostKeyChecking=no -o ConnectTimeout=15 13199@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\\\\\\\\Users\\\\\\\\13199\\\\\\\\trigger_ds_async.ps1"'
         try:
             r = subprocess.run(['bash', '-c', cmd], capture_output=True, timeout=60)
             out = r.stdout.decode('utf-8', errors='replace').strip()
@@ -69,7 +69,7 @@ def main():
             print('⚠️ 派单触发超时,请检查 Windows 侧计划任务 DSAskAsync 状态')
         return
 
-    cmd = 'ssh -p 2222 -i /root/.ssh/id_ed25519_frp -o StrictHostKeyChecking=no -o ConnectTimeout=15 13199@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\\\\\\\\Users\\\\\\\\13199\\\\\\\\run_deepseek.ps1"'
+    cmd = 'ssh -p 2222 -i ${HOME}/.ssh/id_ed25519_frp -o StrictHostKeyChecking=no -o ConnectTimeout=15 13199@127.0.0.1 "powershell -ExecutionPolicy Bypass -File C:\\\\\\\\Users\\\\\\\\13199\\\\\\\\run_deepseek.ps1"'
     try:
         r = subprocess.run(['bash', '-c', cmd], capture_output=True, timeout=320)
         out = r.stdout.decode('utf-8', errors='replace').strip()

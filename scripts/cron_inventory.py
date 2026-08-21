@@ -2,7 +2,7 @@
 """生成定时任务清单到 vault(每晚自动更新)。读取 ~/.hermes/cron/jobs.json。"""
 import json, os, datetime
 
-JOBS = os.path.expanduser('/root/.hermes/cron/jobs.json')
+JOBS = os.path.expanduser('${HOME}/.hermes/cron/jobs.json')
 OUT = '${VAULT_PATH:-/root/vault}/entities/定时任务清单.md'
 
 d = json.load(open(JOBS, encoding='utf-8'))

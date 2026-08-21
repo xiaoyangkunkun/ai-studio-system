@@ -2,12 +2,12 @@
 # -*- coding: utf-8 -*-
 """CSDN API 直调发布器(2026-08-15,基于知远逆向的网关签名)
 用法: python3 csdn_publish.py <md文件> [draft|publish]
-依赖: markdown(hermes venv 有);cookie 在 /root/.hermes/data/csdn_cookies.json
+依赖: markdown(hermes venv 有);cookie 在 ${HOME}/.hermes/data/csdn_cookies.json
 """
 import json, uuid, base64, hashlib, hmac, sys, pathlib, datetime
 import urllib.request
 
-COOKIE_FILE = '/root/.hermes/data/csdn_cookies.json'
+COOKIE_FILE = '${HOME}/.hermes/data/csdn_cookies.json'
 API = 'https://bizapi.csdn.net/blog-console-api/v3/mdeditor/saveArticle'
 X_CA_KEY = '203803574'
 APP_SECRET = '9znpamsyl2c7cdrr9sas0le9vbc3r6ba'
