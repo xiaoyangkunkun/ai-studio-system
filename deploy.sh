@@ -199,7 +199,20 @@ if command -v hermes &> /dev/null; then
     ok "Hermes已安装: $(hermes --version 2>&1 | head -1)"
 else
     curl -fsSL https://hermes-agent.nousresearch.com/install.sh -o /tmp/install_hermes.sh
-    bash /tmp/install_hermes.sh 2>&1 | tail -5
+    # 超时保护：默认300秒，可通过 INSTALL_TIMEOUT 自定义
+    # 设 SKIP_HERMES_INSTALL=1 跳过安装（已手动安装时）
+    INSTALL_TIMEOUT="${INSTALL_TIMEOUT:-300}"
+    if [ "${SKIP_HERMES_INSTALL:-0}" = "1" ]; then
+        warn "SKIP_HERMES_INSTALL=1，跳过Hermes安装"
+    else
+        echo "  安装超时限制: ${INSTALL_TIMEOUT}秒（设 INSTALL_TIMEOUT=0 取消限制）"
+        if [ "$INSTALL_TIMEOUT" -gt 0 ] 2>/dev/null; then
+            timeout "$INSTALL_TIMEOUT" bash /tmp/install_hermes.sh 2>&1 | tail -5 \
+                || warn "Hermes安装超时或失败（${INSTALL_TIMEOUT}秒），请手动安装后重试"
+        else
+            bash /tmp/install_hermes.sh 2>&1 | tail -5
+        fi
+    fi
     source ~/.bashrc 2>/dev/null || true
 
     # 确保hermes命令可用
@@ -302,8 +315,16 @@ DASHBOARD_SECRET=$DASH_SECRET
 ENVEOF
 ok ".env"
 
-# 5.2 config.yaml
-if [ ! -f "$HERMES_HOME/config.yaml" ] && [ -f "$SCRIPT_DIR/config-template.yaml" ]; then
+# 5.2 config.yaml（不存在或含未替换占位符时重新生成）
+NEED_CONFIG=0
+if [ ! -f "$HERMES_HOME/config.yaml" ]; then
+    NEED_CONFIG=1
+elif grep -q '{{' "$HERMES_HOME/config.yaml" 2>/dev/null; then
+    warn "config.yaml 存在但包含未替换占位符，重新生成"
+    NEED_CONFIG=1
+fi
+
+if [ "$NEED_CONFIG" -eq 1 ] && [ -f "$SCRIPT_DIR/config-template.yaml" ]; then
     cp "$SCRIPT_DIR/config-template.yaml" "$HERMES_HOME/config.yaml"
 
     # 替换所有占位符
@@ -314,9 +335,16 @@ if [ ! -f "$HERMES_HOME/config.yaml" ] && [ -f "$SCRIPT_DIR/config-template.yaml
     sed -i "s|{{DASHBOARD_PASSWORD_HASH}}|$DASH_PASS_HASH|g" "$HERMES_HOME/config.yaml"
     sed -i "s|{{DASHBOARD_SECRET}}|$DASH_SECRET|g" "$HERMES_HOME/config.yaml"
 
-    ok "config.yaml"
+    # 验证：确保没有残留的 {{ 占位符
+    if grep -q '{{YOUR_\|{{DASHBOARD_' "$HERMES_HOME/config.yaml" 2>/dev/null; then
+        warn "config.yaml 仍有未替换的占位符，请手动检查"
+    else
+        ok "config.yaml"
+    fi
+elif [ "$NEED_CONFIG" -eq 0 ]; then
+    warn "config.yaml 已存在且无占位符，跳过"
 else
-    warn "config.yaml 已存在，跳过"
+    warn "config-template.yaml 缺失，跳过 config.yaml 生成"
 fi
 
 echo ""
@@ -334,41 +362,49 @@ if command -v hermes &> /dev/null; then
             && ok "$name" || warn "$name（可能已存在）"
     }
 
-    create_cron "每日晨报" --schedule "0 8 * * *" \
-        --prompt "你是每日晨报助手。查看天气、昨日用量、待办事项。用中文输出，条目式。天气用 curl wttr.in/${CITY}?format=3 获取。"
+    # 注意: schedule 和 prompt 是位置参数，不是 --schedule/--prompt 选项
+    # 格式: hermes cron create [options] schedule [prompt]
 
-    create_cron "服务器监控" --schedule "*/30 * * * *" \
+    create_cron "每日晨报" "0 8 * * *" \
+        "你是每日晨报助手。查看天气、昨日用量、待办事项。用中文输出，条目式。天气用 curl wttr.in/${CITY}?format=3 获取。"
+
+    create_cron "服务器监控" "*/30 * * * *" \
         --script "server_watch.sh" --no-agent
 
-    create_cron "Token用量结算" --schedule "10 0 * * *" \
+    create_cron "Token用量结算" "10 0 * * *" \
         --script "token_report.py" --no-agent
 
-    create_cron "Inbox AI分类" --schedule "0 3 * * *" \
-        --script "classify_inbox.py"
+    create_cron "Inbox AI分类" "0 3 * * *" \
+        --script "classify_inbox.py" \
+        "运行 classify_inbox.py 对 Inbox 目录的文件进行AI分类，将文件移动到合适的目录。"
 
-    create_cron "知识库健康度" --schedule "10 3 * * *" \
-        --script "knowledge_health_check.sh"
+    create_cron "知识库健康度" "10 3 * * *" \
+        --script "knowledge_health_check.sh" \
+        "运行知识库健康检查脚本，报告知识库状态和问题。"
 
-    create_cron "知识库整理" --schedule "30 3 * * *" \
-        --prompt "运行 fix_frontmatter.py 和 fix_dead_links.py 修复知识库问题。"
+    create_cron "知识库整理" "30 3 * * *" \
+        "运行 fix_frontmatter.py 和 fix_dead_links.py 修复知识库问题。"
 
-    create_cron "每周备份" --schedule "0 3 * * 0" \
+    create_cron "每周备份" "0 3 * * 0" \
         --script "weekly_backup.sh" --no-agent
 
-    create_cron "目录更新" --schedule "30 4 * * *" \
+    create_cron "目录更新" "30 4 * * *" \
         --script "skills_inventory_wrapper.sh" --no-agent
 
-    create_cron "夜间检查" --schedule "30 7 * * *" \
+    create_cron "夜间检查" "30 7 * * *" \
         --script "night_check.py" --no-agent
 
-    create_cron "习惯体检" --schedule "30 5 * * 6" \
-        --script "habit_check.sh"
+    create_cron "习惯体检" "30 5 * * 6" \
+        --script "habit_check.sh" \
+        "运行习惯检查脚本，分析用户的习惯执行情况并给出建议。"
 
-    create_cron "流程优化" --schedule "30 5 * * 0" \
-        --script "flow_signal_extract.sh"
+    create_cron "流程优化" "30 5 * * 0" \
+        --script "flow_signal_extract.sh" \
+        "运行流程信号提取脚本，分析工作流程中的瓶颈和优化机会。"
 
-    create_cron "产出Watchdog" --schedule "*/10 * * * *" \
-        --script "watchdog_inbox.py"
+    create_cron "产出Watchdog" "*/10 * * * *" \
+        --script "watchdog_inbox.py" \
+        "监控工作室产出目录，检查是否有新产出需要处理。"
 
     CRON_COUNT=$(hermes cron list 2>/dev/null | grep -c "✅\|⏸\|❌" || echo 0)
     ok "共 $CRON_COUNT 个定时任务"
@@ -420,4 +456,22 @@ fi
 echo "═══════════════════════════════════════════════"
 echo ""
 echo "📊 统计: 脚本 $SCRIPT_COUNT 个 | 技能 $SKILL_COUNT 个 | Cron ${CRON_COUNT:-0} 个"
+echo ""
+echo "═══════════════════════════════════════════════"
+echo "  后续步骤"
+echo "═══════════════════════════════════════════════"
+echo ""
+echo "  1. 重启 Gateway 使配置生效："
+echo "     方法A: hermes gateway restart"
+echo "     方法B: pkill -f 'hermes.*gateway' && hermes gateway start"
+echo "     方法C: 重启终端后运行 hermes gateway start"
+echo ""
+echo "  2. 验证部署："
+echo "     hermes status          # 检查状态"
+echo "     hermes cron list       # 查看定时任务"
+echo "     hermes dashboard       # 打开Dashboard"
+echo ""
+echo "  3. 如遇问题："
+echo "     hermes doctor          # 诊断常见问题"
+echo "     hermes logs --tail 50  # 查看最近日志"
 echo ""
