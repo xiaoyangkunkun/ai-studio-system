@@ -484,15 +484,16 @@ echo ""
 echo "  启动 Gateway..."
 if systemctl is-active hermes-gateway.service &>/dev/null; then
     ok "Gateway 已运行（systemctl）"
-elif hermes gateway restart &>/dev/null 2>&1; then
-    ok "Gateway 已启动"
 else
+    # 先杀掉旧进程
     pkill -9 -f 'hermes.*run' 2>/dev/null || true
     sleep 2
+    # 启动Gateway
     nohup hermes gateway run > /tmp/gw.log 2>&1 &
-    sleep 3
+    sleep 5
+    # 验证是否真正启动
     if ps aux | grep -q '[h]ermes.*gateway'; then
-        ok "Gateway 已启动（手动）"
+        ok "Gateway 已启动"
     else
         warn "Gateway 启动失败，Cron任务可能无法创建"
     fi
